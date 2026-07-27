@@ -1,0 +1,2099 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14352A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Hop & Harten</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%2314352A'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23d8695f'%3E%E2%99%A5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --baize:#14352A; --baize-deep:#0E251D; --baize-line:rgba(255,255,255,.10);
+  --parch:#EFE6D0; --parch-dim:#E1D3B3; --parch-line:rgba(25,23,18,.14);
+  --ink:#191712; --ink-soft:#4a4438; --bone:#F6EFE0; --bone-dim:#c9c3b1;
+  --rood:#B23A34; --rood-soft:#d8695f; --brass:#C9A24B; --brass-deep:#9c7a2f;
+  --groen-ok:#5c9a6f;
+  --r:14px; --r-sm:9px;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --tap:48px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:Inter,system-ui,sans-serif; color:var(--bone);
+  background:radial-gradient(90% 42% at 50% 0%, var(--persona-tint, transparent), transparent 62%), radial-gradient(120% 90% at 50% -10%, #1c463a 0%, var(--baize) 45%, var(--baize-deep) 100%);
+  background-attachment:fixed; min-height:100dvh; -webkit-text-size-adjust:100%;
+  padding-bottom:calc(84px + env(safe-area-inset-bottom)); transition:background .5s;
+}
+.persona-hi{display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,var(--parch),var(--parch-dim));color:var(--ink);border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.35);margin-bottom:14px}
+.persona-hi .ph-emoji{font-size:30px;flex:0 0 auto}
+.persona-hi .ph-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:17px}
+.persona-hi .ph-line{font-size:12.5px;color:var(--ink-soft);margin-top:1px}
+.twist-banner{background:linear-gradient(90deg,rgba(201,162,75,.22),rgba(178,58,52,.18));border:1px solid var(--brass-deep);color:var(--bone);border-radius:var(--r-sm);padding:10px 12px;font-weight:600;font-size:13.5px;margin:8px 0 0;text-align:center}
+.hr-rule{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;color:var(--ink);margin:12px 0;line-height:1.2}
+.hr-who{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;color:var(--ink)}
+.hc-list{margin:14px 0 20px}
+.hc-banner{display:flex;align-items:flex-start;gap:12px;justify-content:space-between;background:linear-gradient(90deg,rgba(178,58,52,.30),rgba(178,58,52,.16));border:1px solid var(--rood);border-radius:var(--r);padding:13px 12px 13px 14px}
+.hc-banner + .hc-banner{margin-top:8px}
+.hc-banner .hcb-l{display:flex;align-items:flex-start;gap:11px;min-width:0;flex:1}
+.hc-banner .hcb-who{font-weight:700;font-size:13px;color:var(--bone);letter-spacing:.01em}
+.hc-banner .hcb-rule{font-size:13px;color:var(--bone-dim);line-height:1.45;margin-top:3px}
+.hc-banner .hcb-x{background:transparent;border:0;color:var(--rood-soft);font-size:18px;width:34px;height:34px;flex:0 0 auto;margin:-4px -4px 0 0}
+.hc-freq{display:flex;gap:6px;margin-top:10px}
+.hc-freq button{flex:1;background:rgba(0,0,0,.06);border:1px solid var(--parch-line);color:var(--ink-soft);border-radius:var(--r-sm);padding:10px 4px;font-weight:700;font-size:13px}
+.hc-freq button.on{background:var(--brass);border-color:var(--brass-deep);color:#241c07}
+.boete-card{background:linear-gradient(160deg,#B23A34,#7d2823);color:#fff;border-radius:var(--r);padding:14px 16px;margin-top:12px;text-align:center;box-shadow:var(--shadow)}
+.boete-card .bc-eye{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.85}
+.boete-card .bc-who{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px;margin:4px 0 2px}
+.boete-card .bc-rule{font-size:14px;opacity:.96}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+header{padding:22px 16px 8px;position:relative}
+header .wm{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.01em;line-height:1;color:var(--bone);display:flex;align-items:center;gap:10px}
+header .wm .suits{font-size:18px;letter-spacing:2px}
+header .wm .suits .r{color:var(--rood-soft)}
+header .sub{color:var(--bone-dim);font-size:12.5px;margin-top:6px;letter-spacing:.02em}
+h2.view-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;margin:18px 0 4px;letter-spacing:-.01em}
+.muted{color:var(--bone-dim);font-size:13px;line-height:1.5}
+.eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass)}
+.mono{font-family:'Space Mono',monospace}
+.card{background:linear-gradient(180deg,var(--parch) 0%, var(--parch-dim) 100%);color:var(--ink);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.35);position:relative}
+.card + .card{margin-top:12px}
+button{font-family:inherit;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);padding:0 18px;border-radius:var(--r-sm);font-weight:600;font-size:15px;border:1px solid transparent;width:100%}
+.btn.brass{background:var(--brass);color:#241c07;border-color:var(--brass-deep)}
+.btn.brass:active{background:var(--brass-deep)}
+.btn.ghost{background:transparent;color:var(--bone);border-color:var(--baize-line)}
+.btn.ghost.dark{color:var(--ink);border-color:var(--parch-line)}
+.btn.red{background:var(--rood);color:#fff}
+.btn.small{min-height:38px;padding:0 12px;font-size:13px;width:auto}
+.btn:disabled{opacity:.45;pointer-events:none}
+.btn-row{display:flex;gap:10px;margin-top:12px}
+.games{display:grid;gap:12px;margin-top:14px}
+.game-tile{text-align:left;border-radius:var(--r);padding:16px 16px 14px;color:var(--ink);border:1px solid rgba(255,255,255,.4);box-shadow:var(--shadow);position:relative;overflow:hidden;width:100%}
+.game-tile .gt-suit{position:absolute;right:-6px;top:-14px;font-size:96px;opacity:.10;line-height:1}
+.game-tile h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px;margin:0}
+.game-tile p{margin:4px 0 0;font-size:12.5px;color:var(--ink-soft);max-width:80%}
+.tile-toepen{background:linear-gradient(160deg,#f0e3c8,#e6d3ab)}
+.tile-toepen .gt-suit{color:var(--rood)}
+.tile-bb{background:linear-gradient(160deg,#eae7cf,#d9dcb6)}
+.tile-bb .gt-suit{color:#2c5b3f}
+
+.standings{display:flex;flex-direction:column;gap:8px}
+.srow{display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:10px;background:var(--parch);color:var(--ink);border-radius:var(--r-sm);padding:10px 12px;border:1px solid var(--parch-line)}
+.srow .rank{font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft)}
+.idcell{display:flex;align-items:center;gap:9px;min-width:0}
+.srow .nm{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .tot{font-family:'Space Mono',monospace;font-weight:700;font-size:22px;letter-spacing:-.02em}
+.srow.leader{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass)}
+.srow.leader .rank::after{content:"♛";color:var(--brass-deep);margin-left:1px}
+.srow.dead{opacity:.55}
+.srow.dead .nm::after{content:" · dood";color:var(--rood);font-weight:600;font-size:12px}
+.nmwrap{min-width:0}
+.meter{height:5px;border-radius:3px;background:rgba(25,23,18,.14);margin-top:5px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--groen-ok);transition:width .2s,background .2s}
+.meter.warn i{background:var(--brass)}
+.meter.danger i{background:var(--rood)}
+
+.round-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px}
+.round-head .rn{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px;color:var(--ink)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--parch-line);border-radius:var(--r-sm);overflow:hidden;background:#fff}
+.stepper button{width:40px;height:40px;border:0;background:transparent;font-size:20px;color:var(--ink);font-family:'Space Mono',monospace}
+.stepper button:active{background:rgba(0,0,0,.06)}
+.stepper .val{min-width:34px;text-align:center;font-family:'Space Mono',monospace;font-weight:700;font-size:16px;color:var(--ink)}
+.field-lbl{font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:6px;display:block}
+.prow{display:grid;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--parch-line)}
+.prow:first-of-type{border-top:0}
+.pnmcell{display:flex;align-items:center;gap:8px;min-width:0}
+.pnm{font-weight:600;color:var(--ink);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow.bb{grid-template-columns:1fr 60px 60px 46px}
+.prow.tp{grid-template-columns:auto 1fr auto}
+.num{width:100%;height:44px;border:1px solid var(--parch-line);border-radius:var(--r-sm);text-align:center;font-family:'Space Mono',monospace;font-weight:700;font-size:17px;color:var(--ink);background:#fff;-moz-appearance:textfield}
+.num::-webkit-outer-spin-button,.num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.num:focus{outline:2px solid var(--brass);outline-offset:0}
+.num:disabled{background:#efe9db;color:var(--ink-soft)}
+.num.bad{border-color:var(--rood);outline:2px solid var(--rood);background:#fbeceb}
+.pts{font-family:'Space Mono',monospace;font-weight:700;font-size:15px;text-align:right;color:var(--ink)}
+.pts.neg{color:var(--rood)}
+.pts.pos{color:var(--groen-ok)}
+.colhead{display:grid;gap:10px;padding:0 0 6px;font-size:11px;color:var(--ink-soft);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.05em}
+.colhead.bb{grid-template-columns:1fr 60px 60px 46px}
+.colhead.tp{grid-template-columns:auto 1fr auto}
+.straf-step{display:flex;align-items:center;gap:6px}
+.ss-btn{width:38px;height:44px;border:1px solid var(--parch-line);border-radius:var(--r-sm);background:#fff;font-family:'Space Mono',monospace;font-size:20px;line-height:1;color:var(--ink);flex:0 0 auto}
+.ss-btn:active{background:rgba(0,0,0,.06)}
+.ss-btn:disabled{opacity:.35}
+.ss-num{width:48px!important;flex:0 0 auto}
+.cancel-game{color:var(--bone-dim);font-size:13px;font-weight:500;border-color:transparent}
+.cancel-game:active{color:var(--rood-soft)}
+.colhead span{text-align:center}
+.colhead span:first-child{text-align:left}
+.colhead span:last-child{text-align:right}
+.dealer-hint{font-size:11.5px;font-weight:600;margin-top:3px;color:var(--ink-soft)}
+.dealer-hint.block{color:var(--rood)}
+.win-radio{width:26px;height:26px;border-radius:50%;border:2px solid var(--parch-line);display:inline-flex;align-items:center;justify-content:center;background:#fff}
+.win-radio.on{border-color:var(--brass);background:var(--brass)}
+.win-radio.on::after{content:"♛";font-size:13px;color:#241c07}
+.chk{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-soft);margin-top:12px;cursor:pointer;line-height:1.4}
+.chk .box{flex:0 0 auto;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--parch-line);background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:14px;margin-top:1px}
+.chk .box::after{content:""}
+.chk.on .box{background:var(--rood);border-color:var(--rood);color:#fff}
+.chk.on .box::after{content:"✓"}
+.chk-txt{flex:1}
+.hint{font-size:11.5px;color:var(--ink-soft);margin-top:8px;line-height:1.45}
+.hint b{color:var(--ink)}
+.sumbar{display:flex;gap:14px;margin-top:10px;font-family:'Space Mono',monospace;font-size:12px}
+.sumbar .s b{font-size:15px}
+.sumbar .ok{color:var(--groen-ok)} .sumbar .warn{color:var(--brass-deep)} .sumbar .bad{color:var(--rood)}
+
+/* avatars */
+.av{width:34px;height:34px;border-radius:50%;background:var(--baize);color:var(--bone);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Bricolage Grotesque',sans-serif;flex:0 0 auto}
+.av .emo{font-size:18px;line-height:1}
+.av.sm{width:26px;height:26px;font-size:11px}
+.av.sm .emo{font-size:13px}
+.av.lg{width:56px;height:56px;font-size:20px}
+.av.lg .emo{font-size:30px}
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}
+.avatar-grid .opt{aspect-ratio:1;border:1px solid var(--parch-line);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0;overflow:hidden}
+.avatar-grid .opt .av{width:100%;height:100%;border-radius:9px}
+.avatar-grid .opt.none{font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft);font-weight:700}
+.picker-wrap{background:rgba(0,0,0,.06);border-radius:var(--r-sm);padding:8px 10px;margin-top:-4px}
+
+/* player mgmt */
+.p-add{display:flex;gap:8px;margin-top:10px}
+.p-add input{flex:1;height:var(--tap);border-radius:var(--r-sm);border:1px solid var(--baize-line);background:rgba(0,0,0,.2);color:var(--bone);padding:0 14px;font-size:15px}
+.p-add input:focus{outline:2px solid var(--brass)}
+.p-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.p-item{display:flex;align-items:center;gap:12px;background:var(--parch);color:var(--ink);border-radius:var(--r-sm);padding:10px 12px;border:1px solid var(--parch-line)}
+.p-item .txt{flex:1;min-width:0}
+.p-item .nm{font-weight:600}
+.p-item .fotolink{font-size:11px;color:var(--ink-soft);margin-top:1px}
+.p-item .fotolink b{color:var(--brass-deep)}
+.p-item .x{background:transparent;border:0;color:var(--rood);font-size:22px;width:38px;height:38px;line-height:1}
+.av-edit{position:relative;cursor:pointer}
+.av-edit .cam{position:absolute;right:-2px;bottom:-2px;width:18px;height:18px;border-radius:50%;background:var(--brass);color:#241c07;font-size:10px;display:flex;align-items:center;justify-content:center;border:2px solid var(--parch)}
+.sel-item{display:flex;align-items:center;gap:12px;background:var(--parch);color:var(--ink);border-radius:var(--r-sm);padding:10px 12px;border:1px solid var(--parch-line);cursor:pointer;user-select:none}
+.sel-item.on{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass)}
+.sel-item .box{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--parch-line);display:flex;align-items:center;justify-content:center;font-size:15px;background:#fff;flex:0 0 auto}
+.sel-item.on .box{background:var(--brass);border-color:var(--brass-deep);color:#241c07}
+.sel-item.on .box::after{content:"✓"}
+.sel-item .nm{font-weight:600;flex:1}
+.selbar{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.selbar .cnt{font-family:'Space Mono',monospace;font-size:12px;color:var(--bone-dim)}
+
+/* reorder */
+.reorder{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.ro-item{display:flex;align-items:center;gap:10px;background:var(--parch);color:var(--ink);border-radius:var(--r-sm);padding:8px 10px;border:1px solid var(--parch-line)}
+.ro-item .pos{font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft);width:18px}
+.ro-item .nm{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ro-item .ar{display:flex;gap:4px}
+.ro-item .ar button{width:36px;height:36px;border-radius:8px;border:1px solid var(--parch-line);background:#fff;font-size:15px;color:var(--ink)}
+.ro-item .ar button:disabled{opacity:.3}
+.ro-item .lastflag{font-family:'Space Mono',monospace;font-size:10px;color:var(--brass-deep)}
+
+.lb-item{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:12px;background:var(--parch);color:var(--ink);border-radius:var(--r-sm);padding:12px;border:1px solid var(--parch-line)}
+.lb-item.top{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass)}
+.lb-item .medal{font-family:'Space Mono',monospace;font-weight:700;font-size:15px;color:var(--ink-soft);text-align:center}
+.lb-item.top .medal{color:var(--brass-deep)}
+.lb-cell{display:flex;align-items:center;gap:10px;min-width:0}
+.lb-item .nm{font-weight:600;font-size:16px}
+.lb-item .split{font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-soft);margin-top:2px}
+.lb-item .wins{font-family:'Space Mono',monospace;font-weight:700;font-size:26px;line-height:1;text-align:right}
+.lb-item .wins small{font-size:11px;color:var(--ink-soft);display:block;text-align:right;font-weight:400}
+
+.rules h3{font-family:'Bricolage Grotesque',sans-serif;font-size:17px;margin:14px 0 6px;color:var(--ink)}
+.rules p{font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:6px 0}
+.rules ul{margin:6px 0;padding-left:18px}
+.rules li{font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:3px 0}
+.rules .pill{display:inline-block;font-family:'Space Mono',monospace;font-size:11px;background:var(--baize);color:var(--bone);padding:2px 8px;border-radius:20px;letter-spacing:.04em}
+.rules b{color:var(--ink)}
+.win-banner{text-align:center;padding:22px 16px}
+.win-banner .laurel{font-size:46px}
+.win-banner .who{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:30px;color:var(--ink);margin:6px 0 2px}
+.win-banner .cap{color:var(--ink-soft);font-size:13px}
+.empty{text-align:center;padding:26px 14px;color:var(--bone-dim)}
+.empty .big{font-size:40px;opacity:.5;margin-bottom:8px}
+nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(10,26,20,.92);backdrop-filter:blur(10px);border-top:1px solid var(--baize-line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:space-around}
+nav.tabbar button{background:transparent;border:0;color:var(--bone-dim);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;padding:4px 10px;min-width:60px;border-radius:10px}
+nav.tabbar button .ic{font-size:19px;line-height:1}
+nav.tabbar button.on{color:var(--brass)}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bone);padding:11px 16px;border-radius:10px;font-size:13.5px;box-shadow:var(--shadow);z-index:60;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.toast.err{background:var(--rood);color:#fff}
+.sticky-standings{position:sticky;top:0;z-index:5;padding-top:10px;background:linear-gradient(180deg, var(--baize) 70%, transparent);margin:0 -16px;padding-left:16px;padding-right:16px}
+.progress{display:flex;gap:3px;margin-top:8px;flex-wrap:wrap}
+.progress i{width:9px;height:9px;border-radius:50%;background:rgba(25,23,18,.18)}
+.progress i.done{background:var(--brass)}
+.progress i.now{background:var(--ink);box-shadow:0 0 0 2px var(--brass)}
+.divider{height:1px;background:var(--baize-line);margin:16px 0}
+.badge-cfg{position:absolute;right:16px;top:24px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--bone-dim);border:1px solid var(--baize-line);border-radius:20px;padding:3px 9px}
+/* identity badge */
+.me-badge{position:absolute;right:14px;top:52px;display:inline-flex;align-items:center;gap:7px;background:rgba(0,0,0,.25);border:1px solid var(--baize-line);border-radius:22px;padding:4px 10px 4px 5px;color:var(--bone);font-size:12px;font-weight:600;cursor:pointer}
+.me-badge .av{width:24px;height:24px;font-size:10px}
+.me-badge .sw{color:var(--bone-dim);font-size:12px;margin-left:1px}
+/* identity picker overlay */
+.idov{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(120% 90% at 50% -10%, #1c463a 0%, var(--baize) 45%, var(--baize-deep) 100%);overflow-y:auto}
+.idov.hidden{display:none}
+.idcard{background:linear-gradient(180deg,var(--parch),var(--parch-dim));color:var(--ink);border-radius:20px;padding:22px 20px;max-width:400px;width:100%;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.35)}
+.idcard h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:23px;margin:0 0 4px}
+.idcard .idsub{font-size:13px;color:var(--ink-soft);margin-bottom:14px}
+.id-list{display:flex;flex-direction:column;gap:8px}
+.id-pick{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--parch-line);border-radius:var(--r-sm);padding:9px 12px;cursor:pointer;text-align:left;width:100%}
+.id-pick .nm{font-weight:700;font-size:15px;color:var(--ink);flex:1}
+.id-pick .lock{font-size:13px;color:var(--ink-soft)}
+.id-create{display:flex;gap:8px;margin-top:12px}
+.id-input{width:100%;height:var(--tap);border:1px solid var(--parch-line);border-radius:var(--r-sm);padding:0 14px;font-size:16px;background:#fff;color:var(--ink);margin-top:12px}
+.id-input:focus{outline:2px solid var(--brass)}
+.idcard .btn{margin-top:10px}
+.id-back-btn{margin-top:8px}
+.id-create input{flex:1;height:var(--tap);border:1px solid var(--parch-line);border-radius:var(--r-sm);padding:0 12px;font-size:15px;background:#fff;color:var(--ink)}
+.id-pwrow{display:flex;gap:8px;margin-top:12px}
+.id-pwrow input{flex:1;height:var(--tap);border:1px solid var(--parch-line);border-radius:var(--r-sm);padding:0 12px;font-size:16px;background:#fff;color:var(--ink);font-family:'Space Mono',monospace}
+.id-err{min-height:16px;color:var(--rood);font-size:12.5px;font-weight:600;margin-top:8px}
+.id-back{background:transparent;border:0;color:var(--ink-soft);font-size:13px;margin-top:10px;cursor:pointer}
+/* settings */
+.set-row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.set-sel{height:40px;border:1px solid var(--parch-line);border-radius:var(--r-sm);background:#fff;color:var(--ink);padding:0 10px;font-size:14px;font-family:inherit}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.sim-grid .btn{width:100%;justify-content:flex-start;font-size:12.5px;padding:0 10px}
+.pend-chip{display:inline-flex;align-items:center;gap:6px;background:var(--baize);color:var(--bone);border-radius:20px;padding:3px 10px;font-size:12px;margin:2px 4px 2px 0}
+.pend-chip b{color:var(--rood-soft);cursor:pointer}
+.per-row{font-size:12.5px;color:var(--ink);margin-top:10px;line-height:1.5}
+.per-row b{font-family:'Bricolage Grotesque',sans-serif}
+.bier-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.bier-chip{background:#fff;border:1px solid var(--parch-line);border-radius:20px;padding:9px 13px;font-size:13.5px;font-weight:600;color:var(--ink);display:inline-flex;align-items:center;gap:6px;min-height:40px}
+.bier-chip:active{background:var(--brass);border-color:var(--brass-deep)}
+.bier-chip b{background:var(--baize);color:var(--bone);border-radius:10px;padding:1px 6px;font-size:11px;font-family:'Space Mono',monospace}
+.bier-add{display:flex;gap:8px;margin-top:12px;align-items:center}
+/* ragebait overlays */
+.rbov{position:fixed;inset:0;z-index:88;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(8,20,15,.82);backdrop-filter:blur(3px);text-align:center}
+.rbov .rbc{background:var(--parch);color:var(--ink);border-radius:18px;padding:26px 22px;max-width:360px;width:100%;box-shadow:var(--shadow)}
+.rbov .rbbig{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;margin:8px 0}
+.rb-dq{border:2px solid var(--rood)}
+.rb-spinner{width:44px;height:44px;border-radius:50%;border:4px solid rgba(25,23,18,.15);border-top-color:var(--rood);margin:6px auto 14px;animation:rbspin 0.8s linear infinite}
+@keyframes rbspin{to{transform:rotate(360deg)}}
+.rb-cap-in{width:100%;height:46px;border:1px solid var(--parch-line);border-radius:var(--r-sm);text-align:center;font-family:'Space Mono',monospace;font-size:18px;margin-top:12px;color:var(--ink);text-transform:uppercase}
+main#app.rb-tilt{transform:rotate(-0.8deg);transition:transform .4s}
+[data-act="saveRonde"].rb-dodge{transition:transform .18s ease}
+.deal-chip{flex:0 0 auto;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.03em;padding:3px 7px;border-radius:20px;border:1px solid var(--parch-line);background:#fff;color:var(--ink-soft)}
+.deal-chip.on{background:var(--brass);border-color:var(--brass-deep);color:#241c07;font-weight:700}
+.prow.bb.dealer{background:rgba(201,162,75,.12);border-radius:8px}
+.pnmcell .pnm{flex:1;min-width:0}
+.modal-overlay{position:fixed;inset:0;z-index:80;background:rgba(8,20,15,.62);display:flex;align-items:center;justify-content:center;padding:24px}
+.modal-overlay[hidden]{display:none}
+.modal{background:var(--parch);color:var(--ink);border-radius:var(--r);padding:20px;max-width:340px;width:100%;box-shadow:var(--shadow)}
+.modal-msg{font-size:15px;line-height:1.5;margin-bottom:16px;white-space:pre-line}
+.modal-btns{display:flex;gap:10px}
+/* segmented control */
+.seg{display:flex;background:rgba(0,0,0,.2);border:1px solid var(--baize-line);border-radius:var(--r-sm);padding:3px;margin:14px 0 4px;gap:3px}
+.seg-b{flex:1;border:0;background:transparent;color:var(--bone-dim);font-weight:600;font-size:13px;padding:9px 6px;border-radius:7px}
+.seg-b.on{background:var(--brass);color:#241c07}
+.title-wrap{margin-top:3px;display:flex;flex-wrap:wrap;gap:4px}
+.title-chip{font-size:10.5px;font-family:'Space Mono',monospace;background:var(--baize);color:var(--bone);padding:2px 7px;border-radius:20px}
+.muted2{font-size:11px;color:var(--ink-soft)}
+.rating-svg{width:100%;height:auto;display:block;margin-top:8px}
+.chart-leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.chart-leg span{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-soft);font-family:'Space Mono',monospace}
+.chart-leg i{width:12px;height:3px;border-radius:2px;display:inline-block}
+.badges{display:flex;flex-wrap:wrap;gap:6px}
+.badge{font-size:11px;background:var(--baize);color:var(--bone);padding:4px 9px;border-radius:20px;border:1px solid var(--brass-deep)}
+.badge.big{font-size:12.5px;padding:6px 11px}
+.ach-card{background:var(--parch);color:var(--ink);border-radius:var(--r-sm);padding:12px;border:1px solid var(--parch-line);margin-bottom:8px}
+.ach-card .lb-cell{margin-bottom:8px}
+.ach-count{margin-left:auto;font-size:12px;color:var(--ink-soft)}
+.cat-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.cat-item{display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.16);border:1px solid var(--baize-line);border-radius:var(--r-sm);padding:9px 11px}
+.cat-item .ce{font-size:20px}
+.cat-item .nm{font-weight:600;font-size:13.5px;color:var(--bone)}
+.cat-item .cd{font-size:11.5px;color:var(--bone-dim)}
+/* kans-o-meter */
+.kans .eyebrow{color:var(--brass-deep)}
+.kans-row{display:grid;grid-template-columns:1fr 1fr 44px;align-items:center;gap:10px;margin-top:9px}
+.kans-bar{height:9px;border-radius:5px;background:rgba(25,23,18,.12);overflow:hidden}
+.kans-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brass),var(--brass-deep));transition:width .4s}
+.kans-pct{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;text-align:right;color:var(--ink)}
+/* confetti */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:90;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall 2.2s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(560deg);opacity:.85}}
+/* tool buttons */
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.tool-btn{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.2);border:1px solid var(--baize-line);border-radius:var(--r);padding:13px;color:var(--bone);font-weight:700;font-size:14px;text-align:left}
+.tool-btn .tic{font-size:24px}
+.tool-btn small{display:block;font-weight:400;font-size:10.5px;color:var(--bone-dim);margin-top:1px}
+/* rivalen */
+.riv-card{background:var(--parch);color:var(--ink);border-radius:var(--r-sm);padding:13px;border:1px solid var(--parch-line);margin-bottom:10px}
+.riv-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.riv-side{display:flex;align-items:center;gap:8px;min-width:0}
+.riv-side.r{justify-content:flex-end}
+.riv-side .nm{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.riv-score{font-family:'Space Mono',monospace;font-weight:700;font-size:20px;white-space:nowrap}
+.riv-bar{height:8px;border-radius:5px;overflow:hidden;display:flex;margin-top:9px;background:#cbbfa6}
+.riv-bar i{height:100%}
+.riv-comment{font-size:12px;color:var(--ink-soft);margin-top:8px;font-style:italic}
+/* wheel */
+.prompt-seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.prompt-seg button{background:rgba(0,0,0,.2);border:1px solid var(--baize-line);color:var(--bone-dim);border-radius:20px;padding:7px 13px;font-size:12.5px;font-weight:600}
+.prompt-seg button.on{background:var(--brass);color:#241c07;border-color:var(--brass-deep)}
+.wheel-wrap{display:flex;flex-direction:column;align-items:center;margin-top:14px}
+.wheel-stage{position:relative;width:300px;max-width:84vw;aspect-ratio:1}
+.wheel-stage canvas{width:100%;height:100%;display:block}
+.wheel-ptr{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:28px;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+.wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:var(--parch);border:3px solid var(--brass);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:2}
+.wheel-result{text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:23px;color:var(--bone);margin:16px 0 4px;min-height:30px}
+.wheel-result b{color:var(--brass)}
+/* wrapped */
+.wrap-slide{position:relative;border-radius:22px;min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:30px 22px;box-shadow:var(--shadow);overflow:hidden;animation:wrapIn .5s cubic-bezier(.2,.7,.2,1)}
+.wrap-slide::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.16) 50%,transparent 68%);transform:translateX(-120%);animation:sweep 1.2s .35s ease-out}
+@keyframes sweep{to{transform:translateX(120%)}}
+.wemoji-wrap{animation:bob 2.8s .7s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes wrapIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}
+.wrap-slide .wemoji{font-size:62px;animation:pop .55s .08s both cubic-bezier(.2,1.5,.4,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.wrap-slide .weyebrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.85;margin-top:12px}
+.wrap-slide .wbig{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:34px;line-height:1.04;margin:8px 0}
+.wrap-slide .wsub{font-size:16px;font-weight:600;opacity:.95}
+.wrap-slide .wdetail{font-size:13px;opacity:.85;margin-top:12px;max-width:82%}
+.wrap-slide .wav{margin-top:16px}
+.wrap-dots{display:flex;gap:6px;justify-content:center;margin:6px 0 12px}
+.wrap-dots i{width:7px;height:7px;border-radius:50%;background:rgba(120,120,120,.35);transition:all .2s}
+.wrap-dots i.on{background:var(--brass);width:20px;border-radius:4px}
+.wrap-tap{text-align:center;color:var(--bone-dim);font-size:12px;margin-top:8px}
+.wrap-podium{display:flex;justify-content:center;align-items:flex-end;gap:8px;margin-top:18px}
+.wrap-podium .col{display:flex;flex-direction:column;align-items:center;gap:6px}
+.wrap-podium .bar{width:54px;border-radius:8px 8px 0 0;background:rgba(255,255,255,.92);display:flex;align-items:flex-end;justify-content:center;color:#241c07;font-family:'Space Mono',monospace;font-weight:700;padding-bottom:4px;font-size:13px;height:var(--h);animation:grow .7s .25s both cubic-bezier(.2,.9,.3,1)}
+.wrap-podium .col:nth-child(2) .bar{animation-delay:.4s}
+.wrap-podium .col:nth-child(3) .bar{animation-delay:.55s}
+@keyframes grow{from{height:8px}to{height:var(--h)}}
+.wrap-podium .cn{font-size:12px;font-weight:600}
+/* magic-word gate */
+.gate{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:22px;
+  background:radial-gradient(120% 90% at 50% -10%, #1c463a 0%, var(--baize) 45%, var(--baize-deep) 100%);}
+.gate.hidden{display:none}
+.gate-card{background:linear-gradient(180deg,var(--parch),var(--parch-dim));color:var(--ink);border-radius:20px;
+  padding:26px 22px;max-width:380px;width:100%;box-shadow:var(--shadow);text-align:center;border:1px solid rgba(255,255,255,.35)}
+.gate-card.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.gate-suits{font-size:22px;letter-spacing:4px;color:var(--rood)}
+.gate-suits span{color:var(--ink)}
+.gate-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:24px;margin:12px 0 6px;letter-spacing:-.01em}
+.gate-sub{font-size:13.5px;line-height:1.55;color:var(--ink-soft);margin:0 0 18px}
+.gate-sub b{color:var(--ink)}
+#gateForm{display:flex;flex-direction:column;gap:10px}
+#gatePw{height:var(--tap);border:1px solid var(--parch-line);border-radius:var(--r-sm);background:#fff;color:var(--ink);
+  padding:0 14px;font-size:16px;text-align:center;font-family:'Space Mono',monospace}
+#gatePw:focus{outline:2px solid var(--brass)}
+.gate-err{min-height:18px;color:var(--rood);font-size:12.5px;font-weight:600;margin-top:10px}
+.gate-hint{font-size:11.5px;color:var(--ink-soft);margin-top:8px;opacity:.85}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <div class="gate-card" id="gateCard">
+    <div class="gate-suits">♠<span>♥</span><span>♦</span>♣</div>
+    <h1 class="gate-title">Voeg het magische woord in</h1>
+    <p class="gate-sub">De kaarttafel is betoverd. Alleen wie het toverwoord fluistert mag aanschuiven — <b>hocus pocus</b>, maar dan voor pokeraars. 🃏</p>
+    <form id="gateForm" autocomplete="on" onsubmit="return false">
+      <input type="text" name="username" id="gateUser" autocomplete="username" value="kaartavond" hidden>
+      <input type="password" name="password" id="gatePw" autocomplete="current-password" placeholder="het magische woord…" enterkeyhint="go" spellcheck="false" autocapitalize="none">
+      <button type="submit" class="btn brass" id="gateBtn">Open de tafel</button>
+    </form>
+    <div class="gate-err" id="gateErr"></div>
+    <div class="gate-hint">Tip: hocus pocus… maar dan voor kaarters. Eén woord.</div>
+  </div>
+</div>
+<header>
+  <div class="wrap">
+    <div class="wm">Hop <span class="suits"><span class="r">♥</span></span> Harten</div>
+    <div class="sub">BYOB · toepen &amp; boerenbridge</div>
+    <span class="badge-cfg" id="cfgBadge">lokaal</span>
+    <button class="me-badge" id="meBadge" data-act="switchMe" style="display:none"></button>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+<nav class="tabbar" id="tabbar">
+  <button data-nav="home"><span class="ic">♠</span>Start</button>
+  <button data-nav="leaderboard"><span class="ic">♛</span>Scores</button>
+  <button data-nav="spelers"><span class="ic">☺</span>Spelers</button>
+  <button data-nav="uitleg"><span class="ic">ⓘ</span>Uitleg</button>
+</nav>
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modal" hidden>
+  <div class="modal">
+    <div class="modal-msg" id="modalMsg"></div>
+    <div class="modal-btns">
+      <button class="btn ghost dark" id="modalNo">Annuleren</button>
+      <button class="btn brass" id="modalYes">Oké</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ CONFIG — Supabase (optioneel) ============ */
+const SUPABASE_URL  = "https://allvspteepfgtzyyvfux.supabase.co";   // basis-URL (zonder /rest/v1/)
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFsbHZzcHRlZXBmZ3R6eXl2ZnV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODA5NzIsImV4cCI6MjEwMDc1Njk3Mn0.Df2U3xB5mKkk1ijIRGeroZ0QNtG6ID8tFTHZ5HlTauU";   // anon public key
+/* ======================================================= */
+
+const GAMES = {
+  toepen:       { key:'toepen',       naam:'Toepen',       suit:'♥', lowerIsBetter:true  },
+  boerenbridge: { key:'boerenbridge', naam:'Boerenbridge', suit:'♠', lowerIsBetter:false },
+};
+const DOOD = 15;
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(16).slice(2));
+
+/* ---- boerenbridge rondeschema: 1 → piek → 1 ---- */
+function bbPlan(peak){
+  const up=[]; for(let i=1;i<=peak;i++) up.push(i);
+  const down=[]; for(let i=peak-1;i>=1;i--) down.push(i);
+  return up.concat(down);
+}
+function maxPeak(n){ return Math.max(1, Math.min(Math.floor(52/Math.max(2,n)), 13)); }
+function defPeak(n){ return Math.min(maxPeak(n), 7); }
+
+/* ---------- storage backends ---------- */
+const LocalBackend = {
+  read(k,def){ try{ return JSON.parse(localStorage.getItem('kv_'+k)) ?? def }catch(e){ return def } },
+  write(k,v){ localStorage.setItem('kv_'+k, JSON.stringify(v)) },
+  async getSpelers(){ return this.read('spelers',[]) },
+  async saveSpelers(l){ this.write('spelers',l) },
+  async getPotjes(){ return this.read('potjes',[]) },
+  async savePotjes(l){ this.write('potjes',l) },
+};
+let sb=null;
+const SupaBackend = {
+  async getSpelers(){ const {data,error}=await sb.from('spelers').select('*').order('aangemaakt'); if(error)throw error; return data||[]; },
+  async upsertSpeler(s){ const {error}=await sb.from('spelers').upsert(s); if(error)throw error; },
+  async updateSpeler(id,patch){ const {error}=await sb.from('spelers').update(patch).eq('id',id); if(error)throw error; },
+  async getPotjes(){
+    const {data,error}=await sb.from('potjes').select('*').order('gestart',{ascending:false}); if(error)throw error;
+    return (data||[]).map(p=>({ ...p, spelerIds:p.speler_ids||[], winnaarId:p.winnaar_id||null, volgorde:p.volgorde||[], plan:p.plan||[] }));
+  },
+  async upsertPotje(p){
+    const row={ id:p.id, spel:p.spel, status:p.status, speler_ids:p.spelerIds, volgorde:p.volgorde, plan:p.plan,
+      rondes:p.rondes, winnaar_id:p.winnaarId||null, gestart:p.gestart, afgerond:p.afgerond||null };
+    const {error}=await sb.from('potjes').upsert(row); if(error)throw error;
+  },
+  async deletePotje(id){ const {error}=await sb.from('potjes').delete().eq('id',id); if(error)throw error; },
+  async getInstellingen(){ const {data,error}=await sb.from('instellingen').select('*'); if(error)throw error; const o={}; (data||[]).forEach(r=>o[r.key]=r.value); return o; },
+  async setInstelling(key,value){ const {error}=await sb.from('instellingen').upsert({key,value}); if(error)throw error; },
+  subscribe(cb){
+    try{ sb.channel('rt-hopharten')
+      .on('postgres_changes',{event:'*',schema:'public',table:'potjes'},cb)
+      .on('postgres_changes',{event:'*',schema:'public',table:'spelers'},cb)
+      .on('postgres_changes',{event:'*',schema:'public',table:'instellingen'},cb)
+      .subscribe();
+    }catch(e){ console.warn('realtime niet actief',e); }
+  },
+};
+const Store = {
+  useSupa:false,
+  async init(){
+    if(SUPABASE_URL && SUPABASE_ANON && window.supabase){
+      try{ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON); await SupaBackend.getSpelers();
+        this.useSupa=true; document.getElementById('cfgBadge').textContent='online';
+      }catch(e){ console.warn('Supabase niet bereikbaar, lokaal.',e); this.useSupa=false; }
+    }
+  },
+  async spelers(){ return this.useSupa?SupaBackend.getSpelers():LocalBackend.getSpelers(); },
+  async addSpeler(naam){
+    const s={ id:uid(), naam:naam.trim(), avatar:null, actief:true, pending_rb:null, aangemaakt:new Date().toISOString() };
+    if(this.useSupa) await SupaBackend.upsertSpeler(s);
+    else { const l=await LocalBackend.getSpelers(); l.push(s); await LocalBackend.saveSpelers(l); }
+    return s;
+  },
+  async setAvatar(id,avatar){
+    if(this.useSupa) await SupaBackend.updateSpeler(id,{avatar});
+    else { const l=await LocalBackend.getSpelers(); const s=l.find(x=>x.id===id); if(s)s.avatar=avatar; await LocalBackend.saveSpelers(l); }
+  },
+  async archiveSpeler(id){
+    if(this.useSupa) await SupaBackend.updateSpeler(id,{actief:false});
+    else { const l=await LocalBackend.getSpelers(); const s=l.find(x=>x.id===id); if(s)s.actief=false; await LocalBackend.saveSpelers(l); }
+  },
+  async setPending(id,type){
+    if(this.useSupa) await SupaBackend.updateSpeler(id,{pending_rb:type});
+    else { const l=await LocalBackend.getSpelers(); const s=l.find(x=>x.id===id); if(s)s.pending_rb=type; await LocalBackend.saveSpelers(l); }
+  },
+  async potjes(){ return this.useSupa?SupaBackend.getPotjes():LocalBackend.getPotjes(); },
+  async savePotje(p){
+    if(this.useSupa) await SupaBackend.upsertPotje(p);
+    else { const l=await LocalBackend.getPotjes(); const i=l.findIndex(x=>x.id===p.id);
+      if(i>=0)l[i]=p; else l.unshift(p); await LocalBackend.savePotjes(l); }
+  },
+  async deletePotje(id){
+    if(this.useSupa){ try{ await SupaBackend.deletePotje(id); }catch(e){ console.warn(e); } }
+    else { const l=(await LocalBackend.getPotjes()).filter(x=>x.id!==id); await LocalBackend.savePotjes(l); }
+  },
+  async getInstellingen(){ return this.useSupa?SupaBackend.getInstellingen():{
+    wrapped_ok:localStorage.getItem('kv_wrapped_ok')||'', rb_on:localStorage.getItem('kv_rb_on')||'', rb_target:localStorage.getItem('kv_rb_target')||'' }; },
+  async setInstelling(k,v){ if(this.useSupa){ try{ await SupaBackend.setInstelling(k,v); }catch(e){ console.warn(e); } }
+    else { try{ localStorage.setItem('kv_'+k,v); }catch(e){} } },
+  subscribeRealtime(cb){ if(this.useSupa) SupaBackend.subscribe(cb); },
+};
+/* gedeelde instellingen-cache (synchroon leesbaar, async gesynct) */
+async function loadSettings(){ try{ App.settings=await Store.getInstellingen()||{}; }catch(e){ App.settings={}; } }
+function sget(k){ return App.settings ? App.settings[k] : undefined; }
+function sset(k,v){ App.settings=App.settings||{}; App.settings[k]=v; Store.setInstelling(k,v); }
+/* houd de (gratis) Supabase-database wakker: elke keer dat de app opent = een API-call */
+function keepAlivePing(){ if(!Store.useSupa) return;
+  const iso=new Date().toISOString();
+  try{ sset('keepalive', iso); }catch(e){}
+}
+function keepAliveDate(){ const v=sget('keepalive'); if(!v) return null; const d=new Date(v); return isNaN(d)?null:d; }
+
+/* ---------- scoring ---------- */
+function bbPunten(v,g){ v=Number(v)||0; g=Number(g)||0; return v===g?10+2*g:-2*Math.abs(v-g); }
+function toepenRondePunten(r,id){
+  if(id===r.winnaarId) return 0; // winnaar krijgt nooit (min)punten
+  if(r.strafpunten && (id in r.strafpunten)) return Number(r.strafpunten[id])||0;
+  return r.strafpunten ? 0 : (Number(r.inzet)||0)*(r.metBoer?2:1); }
+function totaal(p,id){ let t=0;
+  for(const r of p.rondes){
+    if(p.spel==='toepen') t+=toepenRondePunten(r,id);
+    else { const e=r.entries?.[id]; if(e) t+=bbPunten(e.voorspelling,e.gehaald); }
+  } return t; }
+function isDood(p,id){ return p.spel==='toepen' && totaal(p,id)>=DOOD; }
+
+/* ---------- state ---------- */
+const App={ view:'home', spelers:[], allSpelers:[], potjes:[], activePotje:null, draft:null, lastWinner:null, reorder:false, pickerFor:null, scoreTab:'winst', spelTab:'invoer', wrappedIdx:0, wrappedPrompt:false, wheel:null, wheelRAF:null, radPrompt:'Wie deelt?', me:null, curse:null, curseChecked:null, settings:null, hcRoll:null };
+const TOM_PW='byobbaas';           // wachtwoord voor speler Tom (admin)
+const RB_TYPES=['A','B','C','D','E','F','H'];
+const RB_ROASTS=[ n=>`${n}, dit wordt 'm weer niet hè?`, n=>`Ah, ${n} aan de knoppen. Boeiend.`,
+  n=>`${n}, de underdog van de avond.`, n=>`Sterkte ${n}. Je gaat het nodig hebben.`,
+  n=>`${n} aan het invoeren? Vast weer verkeerd.`, n=>`De statistieken zijn niet mild voor je, ${n}.` ];
+function normalizePotje(p){
+  const spelerIds=p.spelerIds||[];
+  const volgorde=(p.volgorde&&p.volgorde.length)?p.volgorde:spelerIds.slice();
+  let plan=p.plan||[];
+  if(p.spel==='boerenbridge' && !plan.length) plan=bbPlan(defPeak(spelerIds.length||2));
+  return { ...p, spelerIds, volgorde, plan, rondes:p.rondes||[] };
+}
+/* gedeelde tekst is van andere telefoons afkomstig: strip alles wat HTML kan worden */
+function cleanText(s,max){ return String(s==null?'':s).replace(/[<>&"'`]/g,'').trim().slice(0,max||40); }
+async function refresh(){
+  App.allSpelers=(await Store.spelers()).map(s=>Object.assign({},s,{naam:cleanText(s.naam,24)}));
+  App.spelers=App.allSpelers.filter(s=>s.actief!==false);
+  App.potjes=(await Store.potjes()).map(normalizePotje);
+  App.activePotje=App.potjes.find(p=>p.status==='bezig')||null;
+}
+function spelerObj(id){ return (App.allSpelers.length?App.allSpelers:App.spelers).find(x=>x.id===id)||null; }
+function naamVan(id){ const s=spelerObj(id); return s?s.naam:'—'; }
+function initialen(n){ return (n||'?').trim().slice(0,2).toUpperCase(); }
+const PRESETS={
+  vos:{bg:'#C4623B',e:'🦊'}, beer:{bg:'#8a5a2b',e:'🐻'}, uil:{bg:'#5f6a8f',e:'🦉'},
+  kikker:{bg:'#4f8a4f',e:'🐸'}, leeuw:{bg:'#C9A24B',e:'🦁'}, pinguin:{bg:'#37506b',e:'🐧'},
+  octopus:{bg:'#8a4f6b',e:'🐙'}, flamingo:{bg:'#d87a99',e:'🦩'}, schildpad:{bg:'#3f7a5f',e:'🐢'},
+  kat:{bg:'#7a6a8a',e:'🐱'}, hond:{bg:'#a5733f',e:'🐶'}, vis:{bg:'#3f7a8a',e:'🐠'},
+};
+function avatarHTML(id,cls){ cls=cls||''; const s=spelerObj(id);
+  const pr=s&&s.avatar&&PRESETS[s.avatar];
+  if(pr) return `<div class="av ${cls}" style="background:${pr.bg}"><span class="emo">${pr.e}</span></div>`;
+  return `<div class="av ${cls}">${initialen(s?s.naam:'?')}</div>`; }
+
+/* ============ RENDER ============ */
+const el=document.getElementById('app');
+const PERSONA={
+  tim:    {e:'👷', tint:'rgba(217,154,43,.16)',  line:'Helm op — tijd om een voorsprong te bouwen.'},
+  corey:  {e:'💻', tint:'rgba(63,111,176,.16)',  line:'Even de scores netjes aangeven bij de fiscus.'},
+  nick:   {e:'🇮🇹', tint:'rgba(79,138,79,.15)',   line:'Ciao! Forza, laat die kaarten zingen.'},
+  jelle:  {e:'📊', tint:'rgba(122,127,138,.18)', line:'Tijd om de scores te implementeren. Go-live!'},
+  sjoerd: {e:'🌱', tint:'rgba(92,154,111,.16)',  line:'Laat het sudderen en speel duurzaam.'},
+  tom:    {e:'🍺', tint:'rgba(201,162,75,.16)',  line:'De baas is binnen. Proost.'},
+};
+function personaFor(id){ const s=spelerObj(id); if(!s) return null; return PERSONA[(s.naam||'').trim().toLowerCase()]||null; }
+function applyPersona(){ const per=personaFor(App.me); try{ document.body.style.setProperty('--persona-tint', per?per.tint:'transparent'); }catch(e){} }
+
+/* ===== over-engineer pack: persona-chaos · boetes · handicaps · twists · bier ===== */
+const PERSONA_CHAOS={
+  jelle: { save:['Deployment naar productie…','Wijziging vereist goedkeuring van 3 stakeholders.','ORA-00942: tabel bestaat niet.','Ticket JELLE-42 aangemaakt.','Even syncen met de master data…'],
+           loss:['Rollback naar vorige versie. 📉','De implementatie is mislukt, Jelle.','Change request afgekeurd.','Go-live uitgesteld.'] },
+  corey: { save:['⚠️ U wordt gecontroleerd…','Aangifte in behandeling…','Belastingcontrole gestart.','Even de fiscus raadplegen…'],
+           loss:['Naheffing: strafpunten met rente. 🧾','Corey, uw aftrekpost is afgekeurd.','Bezwaar afgewezen.'] },
+  tim:   { save:['🚧 In aanbouw…','Duurt 3 weken langer dan gepland.','Wachten op de kraan…','Even een bouwstop.'],
+           loss:['Bouwvergunning afgekeurd. 🏗️','De steiger is ingestort, Tim.','Opgeleverd met gebreken.'] },
+  nick:  { save:['Un momento…','Mamma mia, che carte!','Aspetta…'],
+           loss:['Mamma mia! 🇮🇹','Je vriendin belt… 📞','Disastro totale!'] },
+  sjoerd:{ save:['Even laten sudderen… 🍲','CO₂-neutraal aan het rekenen…','Biologisch verantwoord opslaan…'],
+           loss:['Je gerecht is aangebrand. 🔥','Niet erg duurzaam, Sjoerd. ♻️','Composteer je nederlaag.'] },
+  tom:   { save:['De baas keurt het goed. 👑'], loss:['Zelfs de baas verliest wel eens. 🍺'] },
+};
+const BOETES=['Haal het volgende rondje 🍻','Neem een slok van je buurmans bier','1 minuut alleen in het Italiaans praten 🇮🇹','Doe een shotje (spa rood mag ook)','Volgende ronde: linkerhand only 🤚','Verliezer schudt én deelt','Geef de winnaar een oprecht compliment','Ad fundum je laatste slok','Jij haalt het bier het volgende potje','Doe je slechtste dansmove 💃','Toost op de winnaar, staand','Vertel je gênantste kaartverhaal'];
+const HANDICAPS=['Kabouter op je glas 🧙 — staat hij er niet op als je neerzet? Drinken.','Drink alleen met je linkerhand 🤚','Je glas mag nooit op tafel — vasthouden of op de grond 🍺','Pink omhoog bij elke slok 🎩','Voor elke slok eerst proosten met je linkerbuur 🍻','Drink met twee handen, als een kleuter 🧒','Kondig elke slok aan: "ik drink nu" 📢','Je mag alleen drinken als iemand anders ook drinkt 👀','Drink staand — zittend drinken = nieuwe slok 🧍','Je glas staat achter je: elke slok = opstaan en halen 🔄','Drinken met je ogen dicht 😑','Zeg "proost" in een andere taal bij elke slok 🌍','Bierviltje op je hoofd tijdens het drinken 🎩','Drink door een rietje 🥤','Draai je glas 3× rond vóór elke slok 🌀','Houd je glas alleen met duim en pink vast 🤏','Alleen mini-slokjes — nooit meer dan een teug 🐭','Bij elke slok eerst een compliment aan de tafel 💬','Je glas krijgt een naam — verkeerd benoemd = drinken 🏷️','Glas altijd op een bierviltje — vergeten = drinken 🍺','Drink met je glas op ooghoogte, arm gestrekt 💪','Na elke slok een luide "aaah" 😌','Je glas mag alleen met je niet-dominante hand aangeraakt 🖐️','Elke slok = eerst een rondje om je stoel 🔁'];
+function hcOn(){ const v=sget('hc_on')!==undefined?sget('hc_on'):gateGet('kv_hc_on'); return v!=='0'; }
+function hcFreq(){ const v=sget('hc_freq')!==undefined?sget('hc_freq'):gateGet('kv_hc_freq'); const n=parseInt(v||'3'); return [2,3,4].includes(n)?n:3; }
+function hcAllowedIds(){ const v=sget('hc_pool')!==undefined?sget('hc_pool'):gateGet('kv_hc_pool');
+  try{ const a=JSON.parse(v||'null'); if(Array.isArray(a)) return a.filter(id=>spelerObj(id)); }catch(e){}
+  return null; }  // null = iedereen mag
+function hcMayGet(id){ const a=hcAllowedIds(); return a===null ? true : a.includes(id); }  // null = iedereen, [] = niemand
+function toggleHcAllowed(id){ let a=hcAllowedIds(); if(a===null) a=App.spelers.map(s=>s.id);
+  a = a.includes(id) ? a.filter(x=>x!==id) : a.concat([id]);
+  sset('hc_pool', JSON.stringify(a)); }
+function hcEligibleFrom(ids){ return (ids||[]).filter(id=>spelerObj(id) && hcMayGet(id)); }
+function maybeAutoHandicap(p){
+  clearAllHandicaps();
+  if(!hcOn()) return null;
+  const pool=hcEligibleFrom(p.spelerIds||[]); if(!pool.length) return null;
+  if(Math.random() >= 1/hcFreq()) return null;
+  const id=pool[(Math.random()*pool.length)|0]; const rule=HANDICAPS[(Math.random()*HANDICAPS.length)|0];
+  assignHandicap(id,rule); return {id,rule};
+}
+function handicapsMap(){ const v=sget('handicaps')!==undefined?sget('handicaps'):gateGet('kv_handicaps');
+  try{ const o=JSON.parse(v||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
+function setHandicaps(m){ sset('handicaps', JSON.stringify(m)); }
+function assignHandicap(id,rule){ const m=handicapsMap(); m[id]=rule; setHandicaps(m); }
+function clearHandicap(id){ const m=handicapsMap(); delete m[id]; setHandicaps(m); }
+function clearAllHandicaps(){ setHandicaps({}); }
+function activeHandicaps(){ const m=handicapsMap(); return Object.keys(m).filter(id=>spelerObj(id)).map(id=>({id,rule:m[id]})); }
+function handicapBannerHTML(){ if(!hcOn()) return ''; const l=activeHandicaps(); if(!l.length) return '';
+  return `<div class="hc-list">`+l.map(h=>`<div class="hc-banner"><div class="hcb-l">${avatarHTML(h.id,'sm')}<div><div class="hcb-who">🎲 ${naamVan(h.id)}</div><div class="hcb-rule">${h.rule}</div></div></div><button class="hcb-x" data-act="hcClear" data-id="${h.id}" aria-label="opheffen">✕</button></div>`).join('')+`</div>`; }
+const TWISTS=['🎲 Dubbele inzet dit potje!','🔇 Stille ronde: wie praat krijgt een boete','🍻 Elke gewonnen ronde = een slok','🔄 Omgekeerd: de verliezer deelt de volgende','👑 Vorige winnaar begint met een handicap','🌀 Chaos: tussendoor extra schudden'];
+function personaChaos(id,ev){ const s=spelerObj(id); if(!s)return null; const p=PERSONA_CHAOS[(s.naam||'').trim().toLowerCase()]; if(!p||!p[ev])return null; return p[ev][(Math.random()*p[ev].length)|0]; }
+function randomBoete(){ return BOETES[(Math.random()*BOETES.length)|0]; }
+function hashStr(s){ let h=0; s=String(s||''); for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
+function potjeTwist(p){ if(!p||!p.id) return null; const h=hashStr(p.id); if(h%10<6) return null; return TWISTS[h%TWISTS.length]; }
+const DEFAULT_BIER=['Tripel','IPA','Dubbel','Blond','Weizen','Stout','Quadrupel','Saison'];
+function bierTypes(){ const v=sget('bier_types')!==undefined?sget('bier_types'):gateGet('kv_bier_types');
+  try{ const a=JSON.parse(v||'null'); if(Array.isArray(a)&&a.length) return a.map(x=>cleanText(x,24)).filter(Boolean); }catch(e){}
+  return DEFAULT_BIER.slice(); }
+function addBierType(naam){ naam=cleanText(naam,24); if(!naam) return 'leeg';
+  const t=bierTypes(); if(t.some(x=>x.toLowerCase()===naam.toLowerCase())) return 'bestaat';
+  t.push(naam); sset('bier_types', JSON.stringify(t)); return 'ok'; }
+function removeBierType(naam){ const t=bierTypes().filter(x=>x!==naam); sset('bier_types', JSON.stringify(t)); }
+function bierLogRaw(id){ const v=sget('bierlog_'+id)!==undefined?sget('bierlog_'+id):gateGet('kv_bierlog_'+id);
+  try{ const o=JSON.parse(v||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
+function bierLegacy(id){ const v=sget('bier_'+id)!==undefined?sget('bier_'+id):gateGet('kv_bier_'+id); return parseInt(v||'0')||0; }
+function bierLog(id){ const o={...bierLogRaw(id)}; const l=bierLegacy(id); if(l>0) o['Onbekend']=(o['Onbekend']||0)+l; return o; }
+function bierCount(id){ const o=bierLog(id); let n=0; for(const k in o) n+=Number(o[k])||0; return n; }
+function bierTop(id){ const o=bierLog(id); let best=null,bv=0; for(const k in o){ if(o[k]>bv){bv=o[k];best=k;} } return best?{type:best,n:bv}:null; }
+function addBier(id,type){ if(!id) return; type=(type||'Onbekend').trim()||'Onbekend';
+  const o=bierLogRaw(id); const l=bierLegacy(id);
+  if(l>0){ o['Onbekend']=(o['Onbekend']||0)+l; sset('bier_'+id,'0'); }   // migreer oude teller
+  o[type]=(Number(o[type])||0)+1; sset('bierlog_'+id, JSON.stringify(o)); }
+function removeBier(id,type){ const o=bierLogRaw(id); if(o[type]){ o[type]--; if(o[type]<=0) delete o[type]; sset('bierlog_'+id, JSON.stringify(o)); return; }
+  if(type==='Onbekend' && bierLegacy(id)>0) sset('bier_'+id, String(bierLegacy(id)-1)); }
+function go(v){ if(App.wheelRAF){cancelAnimationFrame(App.wheelRAF);App.wheelRAF=null;} if(App.wheel)App.wheel.spinning=false;
+  closeHandicap(); App.hcRoll=null; closePrev();      // geen vensters die blijven hangen
+  App.view=v; App.reorder=false; App.pickerFor=null; App.spelTab='invoer'; render(); window.scrollTo(0,0); }
+function render(){
+  syncTabs(); applyPersona();
+  if(App.view!=='spel'){                       // scheve wereld nooit buiten het potje
+    el && el.classList && el.classList.remove('rb-tilt');
+    document.body && document.body.classList && document.body.classList.remove('rb-tilt-body');
+  }
+  ({home:renderHome, spelers:renderSpelers, nieuw:renderNieuw, spel:renderSpel,
+    leaderboard:renderLeaderboard, uitleg:renderUitleg, winst:renderWinst,
+    wrapped:renderWrapped, rad:renderRad, settings:renderSettings, bier:renderBier}[App.view]||renderHome)();
+}
+function syncTabs(){ const map={home:'home',nieuw:'home',spel:'home',winst:'home',rad:'home',settings:'home',bier:'home',leaderboard:'leaderboard',wrapped:'leaderboard',spelers:'spelers',uitleg:'uitleg'};
+  document.querySelectorAll('#tabbar button').forEach(b=>b.classList.toggle('on', b.dataset.nav===map[App.view])); }
+
+function fmtScore(p,t){ return p.spel==='toepen'?`${t} strafpunt${t===1?'':'en'}`:`${t} punt${t===1?'':'en'}`; }
+function ordered(p){ const rows=p.spelerIds.map(id=>({id,tot:totaal(p,id),dood:isDood(p,id)}));
+  const g=GAMES[p.spel]; rows.sort((a,b)=> g.lowerIsBetter?a.tot-b.tot:b.tot-a.tot); return rows; }
+function inputOrder(p){ // volgorde, met eventueel ontbrekende ids achteraan
+  const vo=(p.volgorde&&p.volgorde.length)?p.volgorde.slice():p.spelerIds.slice();
+  for(const id of p.spelerIds) if(!vo.includes(id)) vo.push(id);
+  return vo.filter(id=>p.spelerIds.includes(id));
+}
+
+/* ---- HOME ---- */
+function wrappedIsUnlocked(){ const v=sget('wrapped_ok'); return (v!==undefined?v:gateGet('kv_wrapped_ok'))==='1'; }
+function toggleWrapped(){
+  const on=!wrappedIsUnlocked(); sset('wrapped_ok', on?'1':''); render();
+  toast(on?'🎬 Wrapped staat nu op het startscherm':'Wrapped weer verborgen');
+}
+
+/* ============ IDENTITEIT ("wie ben jij?") ============ */
+function isTom(id){ const s=spelerObj(id); return !!s && s.naam.trim().toLowerCase()==='tom'; }
+function meObj(){ return spelerObj(App.me); }
+function needIdentity(){ const s=meObj(); return !s || s.actief===false; }
+function updateMeBadge(){
+  const b=document.getElementById('meBadge'); if(!b) return;
+  const s=meObj();
+  if(!s){ b.style.display='none'; return; }
+  b.style.display='inline-flex';
+  b.innerHTML=`${avatarHTML(s.id)}<span>${s.naam}</span><span class="sw">⇆</span>`;
+}
+function setMe(id){ App.me=id; try{ gateSet('kv_me', id); }catch(e){} updateMeBadge(); App.curseChecked=null; }
+let idState={ mode:'list', pendingTom:null };
+function showIdentity(switching){
+  let ov=document.getElementById('idov');
+  if(!ov){ ov=document.createElement('div'); ov.id='idov'; ov.className='idov'; document.body.appendChild(ov); }
+  ov.classList.remove('hidden');
+  renderIdentity(switching);
+}
+function hideIdentity(){ const ov=document.getElementById('idov'); if(ov) ov.classList.add('hidden'); }
+function renderIdentity(switching){
+  const ov=document.getElementById('idov'); if(!ov) return;
+  const players=App.spelers;
+  if(idState.mode==='tompw'){
+    ov.innerHTML=`<div class="idcard"><h1>Hoi Tom 🍺</h1><div class="idsub">Even je wachtwoord om als Tom in te loggen.</div>
+      <input type="password" id="idTomPw" class="id-input" placeholder="wachtwoord…" autocomplete="current-password" spellcheck="false" enterkeyhint="go">
+      <div class="id-err" id="idErr"></div>
+      <button class="btn brass" data-act="idTomGo">Inloggen</button>
+      <button class="btn ghost dark id-back-btn" data-act="idBack">← Terug</button></div>`;
+    setTimeout(()=>{ const i=document.getElementById('idTomPw'); try{i&&i.focus();}catch(e){} },80);
+    const i=document.getElementById('idTomPw'); i&&i.addEventListener('keydown',e=>{ if(e.key==='Enter') idTomGo(); });
+    return;
+  }
+  if(idState.mode==='create'){
+    ov.innerHTML=`<div class="idcard"><h1>Maak je speler aan</h1><div class="idsub">Hoe heet je?</div>
+      <input id="idNew" class="id-input" placeholder="Naam…" maxlength="24" autocomplete="off" enterkeyhint="done">
+      <div class="id-err" id="idErr"></div>
+      <button class="btn brass" data-act="idCreate">Aanmaken</button>
+      <button class="btn ghost dark id-back-btn" data-act="idBack">← Terug</button></div>`;
+    setTimeout(()=>{ const i=document.getElementById('idNew'); try{i&&i.focus();}catch(e){} },80);
+    const i=document.getElementById('idNew'); i&&i.addEventListener('keydown',e=>{ if(e.key==='Enter') idCreate(); });
+    return;
+  }
+  let html=`<div class="idcard"><h1>Wie ben jij?</h1><div class="idsub">Selecteer je speler. Zo weet de app wie er speelt.</div><div class="id-list">`;
+  for(const s of players){
+    html+=`<button class="id-pick" data-act="idPick" data-id="${s.id}">${avatarHTML(s.id)}<span class="nm">${s.naam}</span>${isTom(s.id)?'<span class="lock">🔒</span>':''}</button>`;
+  }
+  html+=`</div><button class="id-pick" data-act="idNewMode" style="margin-top:12px;justify-content:center;color:var(--brass-deep);font-weight:700">➕ Maak mijn speler aan</button>`;
+  if(switching && !needIdentity()) html+=`<button class="id-back" data-act="idClose">← annuleren</button>`;
+  html+=`</div>`;
+  ov.innerHTML=html;
+}
+async function idPick(id){
+  if(isTom(id)){ idState.mode='tompw'; idState.pendingTom=id; renderIdentity(true); return; }
+  if(Store.useSupa){ try{ await refresh(); }catch(e){} }
+  setMe(id); idState.mode='list'; hideIdentity(); go('home');
+}
+async function idTomGo(){
+  const i=document.getElementById('idTomPw'), err=document.getElementById('idErr'); if(!i) return;
+  if(gateNorm(i.value)===gateNorm(TOM_PW)){ if(Store.useSupa){ try{ await refresh(); }catch(e){} } setMe(idState.pendingTom); idState.mode='list'; hideIdentity(); go('home'); toast('Ingelogd als Tom 🍺'); }
+  else { if(err) err.textContent='Verkeerd wachtwoord.'; i.value=''; try{i.focus();}catch(e){} }
+}
+async function idCreate(){
+  const i=document.getElementById('idNew'), err=document.getElementById('idErr'); if(!i) return;
+  const naam=cleanText(i.value,24); if(!naam){ if(err)err.textContent='Vul een naam in.'; return; }
+  if(App.spelers.some(s=>s.naam.toLowerCase()===naam.toLowerCase())){ if(err)err.textContent='Die naam bestaat al — kies jezelf uit de lijst.'; return; }
+  const s=await Store.addSpeler(naam); await refresh();
+  if(isTom(s.id)){ idState.mode='tompw'; idState.pendingTom=s.id; renderIdentity(true); return; }
+  setMe(s.id); idState.mode='list'; hideIdentity(); go('home');
+}
+function maybeShowIdentity(){ if(gateGet('kv_gate_ok')==='1' || (document.getElementById('gate')&&document.getElementById('gate').classList.contains('hidden'))){ if(needIdentity()) showIdentity(false); else updateMeBadge(); } }
+
+/* ============ RAGEBAIT (alleen voor het doelwit, max 1x per 2 potjes) ============ */
+function rbOn(){ const v=sget('rb_on'); return (v!==undefined?v:gateGet('kv_rb_on'))!=='0'; }
+function rbTargetId(){
+  const t=sget('rb_target')||gateGet('kv_rb_target');
+  if(t && spelerObj(t)) return t;
+  const j=App.allSpelers.find(s=>['jelle','jelly'].includes((s.naam||'').trim().toLowerCase()));
+  return j?j.id:null;
+}
+function amTarget(){ return rbOn() && App.me && App.me===rbTargetId(); }
+function rbTypesFor(spel){ return RB_TYPES.filter(t=> t!=='C' || spel==='toepen'); }
+function armCurseForPotje(p){
+  App.curseChecked=p.id;
+  App.curse=null; document.body && document.body.classList && document.body.classList.remove('rb-tilt-body');
+  if(!App.me || !(p.spelerIds||[]).includes(App.me)) return;   // ik speel niet mee in dit potje
+  const pend=consumePending(App.me);
+  if(pend){ forcePendingCurse(p, pend); return; }               // door Tom toegewezen: gaat sowieso af
+  if(!amTarget()) return;
+  let cd=parseInt(gateGet('kv_rb_cd')||'0'); if(isNaN(cd))cd=0;
+  if(cd>0){ gateSet('kv_rb_cd', String(cd-1)); return; }        // cooldown: geen ragebait
+  if(Math.random()<0.6){                                          // soms tóch normaal
+    const opts=rbTypesFor(p.spel); const type=opts[(Math.random()*opts.length)|0];
+    App.curse={ potjeId:p.id, type, used:false, dodges:0, cSeen:0 };
+    gateSet('kv_rb_cd','1');                                      // volgend potje sowieso rustig
+    // triggers die meteen bij de start afgaan:
+    if(type==='H') setTimeout(fakeDQ, 400);
+    else if(type==='D') setTimeout(()=>toast(RB_ROASTS[(Math.random()*RB_ROASTS.length)|0](naamVan(App.me))), 500);
+  }
+}
+/* ook armen als je een lopend potje op je eigen telefoon opent (Tom startte 'm bijv.) */
+function ensureCurseForPotje(p){
+  if(!p) return;
+  if(App.curse && App.curse.potjeId===p.id) return;
+  if(App.curseChecked===p.id) return;
+  armCurseForPotje(p);
+}
+function curseActive(type){ return App.curse && !App.curse.used && App.curse.type===type && App.activePotje && App.curse.potjeId===App.activePotje.id; }
+function fakeDQ(){
+  const ov=document.createElement('div'); ov.className='rbov'; const nm=naamVan(App.me);
+  ov.innerHTML=`<div class="rbc rb-dq"><div style="font-size:44px">⚠️</div><div class="rbbig">${nm} is gediskwalificeerd</div><div class="muted2" style="font-size:13px">Wegens vermeend valsspelen.</div></div>`;
+  document.body.appendChild(ov);
+  setTimeout(()=>{ ov.querySelector('.rbbig').textContent='…grapje. Of niet? 😏'; ov.querySelector('.rbc').classList.remove('rb-dq'); }, 1900);
+  const close=()=>ov.remove(); ov.addEventListener('click',close); setTimeout(close,3600);
+}
+// return true = tap "opgevangen" (nog niet opslaan)
+function ragebaitSaveIntercept(){
+  const btn=el.querySelector('[data-act="saveRonde"]');
+  if(curseActive('A')){
+    App.curse.dodges++;
+    if(App.curse.dodges<=3){ if(btn){ btn.classList.add('rb-dodge'); const dx=(Math.random()*2-1)*120, dy=(Math.random()*2-1)*40; btn.style.transform=`translate(${dx}px,${dy}px)`; setTimeout(()=>{btn.style.transform='';},600);} return true; }
+    App.curse.used=true; if(btn){btn.classList.remove('rb-dodge');btn.style.transform='';} return false;
+  }
+  if(curseActive('B')){ App.curse.used=true; rbFakeLoad(()=>saveRonde()); return true; }
+  if(curseActive('F')){ App.curse.used=true; rbCaptcha(()=>saveRonde()); return true; }
+  return false;
+}
+function rbFakeLoad(cont){
+  const ov=document.createElement('div'); ov.className='rbov';
+  ov.innerHTML=`<div class="rbc"><div class="rb-spinner"></div><div class="rbbig" style="font-size:17px" id="rbLoadMsg">Even je matige score verwerken…</div></div>`;
+  document.body.appendChild(ov);
+  const msgs=['Even je matige score verwerken…','Dubbelchecken of dit wel klopt…','Goedkeuring van het bestuur vragen…','Bijna… (echt niet)'];
+  let k=0; const iv=setInterval(()=>{ k++; const m=document.getElementById('rbLoadMsg'); if(m)m.textContent=msgs[k%msgs.length]; },850);
+  setTimeout(()=>{ clearInterval(iv); ov.remove(); cont&&cont(); }, 2900);
+}
+let rbCont=null;
+function rbCaptcha(cont){
+  rbCont=cont||null;
+  const ov=document.createElement('div'); ov.className='rbov';
+  ov.innerHTML=`<div class="rbc"><div class="rbbig" style="font-size:18px">Even bewijzen dat je geen bot bent</div><div class="muted2" style="font-size:13px">Typ <b>BIER</b> achterstevoren.</div>
+    <input class="rb-cap-in" id="rbCap" autocomplete="off" spellcheck="false" placeholder="…"><div class="id-err" id="rbCapErr"></div>
+    <div class="btn-row"><button class="btn ghost dark" data-act="rbCapSkip">Laat maar</button><button class="btn brass" data-act="rbCapGo">Check</button></div></div>`;
+  document.body.appendChild(ov);
+  setTimeout(()=>{ const i=document.getElementById('rbCap'); try{i&&i.focus();}catch(e){} },80);
+}
+function rbCapGo(){
+  const i=document.getElementById('rbCap'), err=document.getElementById('rbCapErr');
+  if(i && i.value.toLowerCase().replace(/[^a-z]/g,'')==='reib'){ document.querySelector('.rbov')?.remove(); const c=rbCont; rbCont=null; c&&c(); }
+  else { if(err) err.textContent='Fout. (hint: R-E-I-B)'; }
+}
+function rbCapSkip(){ document.querySelector('.rbov')?.remove(); const c=rbCont; rbCont=null; c&&c(); }
+/* Tom wijst een random ragebait toe voor de volgende login van een speler */
+function pickRbType(){ return RB_TYPES[(Math.random()*RB_TYPES.length)|0]; }
+async function assignRb(id){ const t=pickRbType(); const s=spelerObj(id); if(s)s.pending_rb=t; await Store.setPending(id,t); return t; }
+function consumePending(id){ const s=spelerObj(id); const t=s&&s.pending_rb; if(t){ s.pending_rb=null; Store.setPending(id,null); } return t||null; }
+async function clearPending(id){ const s=spelerObj(id); if(s)s.pending_rb=null; await Store.setPending(id,null); }
+function forcePendingCurse(p, t){
+  App.curse={ potjeId:p.id, type:t, used:false, dodges:0, cSeen:0 };
+  if(t==='H') setTimeout(fakeDQ,400);
+  else if(t==='D') setTimeout(()=>toast(RB_ROASTS[(Math.random()*RB_ROASTS.length)|0](naamVan(App.me))),500);
+}
+/* simulatie: elk effect los uitproberen */
+function previewRb(type){
+  if(type==='H') return fakeDQ();
+  if(type==='D') return toast(RB_ROASTS[(Math.random()*RB_ROASTS.length)|0]('de speler'));
+  if(type==='E'){ el.classList.add('rb-tilt'); toast('Scheve wereld — 3s'); setTimeout(()=>el.classList.remove('rb-tilt'),3000); return; }
+  if(type==='B') return rbFakeLoad(()=>toast('…en dan tóch opgeslagen (test)'));
+  if(type==='F') return rbCaptcha(()=>toast('Captcha gehaald (test)'));
+  if(type==='C'){ toast('Echt niet. 😌'); setTimeout(()=>toast('(zo weigert het winnaar-vinkje 2× bij het doelwit)'),1100); return; }
+  if(type==='A') return rbDodgeDemo();
+}
+function rbDodgeDemo(){
+  const ov=document.createElement('div'); ov.className='rbov';
+  ov.innerHTML=`<div class="rbc"><div class="rbbig" style="font-size:18px">Tik op “Ronde opslaan”…</div><button class="btn brass" id="rbDemoBtn" style="margin-top:16px;max-width:220px">Ronde opslaan</button></div>`;
+  document.body.appendChild(ov);
+  let n=0; const b=document.getElementById('rbDemoBtn');
+  b&&b.addEventListener('click',()=>{ n++;
+    if(n<=3){ const dx=(Math.random()*2-1)*130,dy=(Math.random()*2-1)*50; b.style.transition='transform .18s'; b.style.transform=`translate(${dx}px,${dy}px)`; setTimeout(()=>{b.style.transform='';},320); toast(RB_ROASTS[(Math.random()*RB_ROASTS.length)|0]('de speler')); }
+    else { ov.remove(); toast('…grapje. Opgeslagen (test).'); } });
+}
+// C: winnaar-ontkenning bij toepen
+function ragebaitWinnerBlock(id){
+  if(curseActive('C') && id===App.me){
+    App.curse.cSeen=(App.curse.cSeen||0)+1;
+    if(App.curse.cSeen<=2){ toast('Echt niet. 😌'); return true; }
+    App.curse.used=true;
+  }
+  return false;
+}
+function renderSettings(){
+  if(!isTom(App.me)){ go('home'); return; }
+  const wOn=wrappedIsUnlocked(); const rOn=rbOn(); const tgt=rbTargetId();
+  let html=`<h2 class="view-title">⚙️ Instellingen</h2>
+    <div class="muted">Alleen zichtbaar voor Tom.</div>
+    <div class="card" style="margin-top:14px">
+      <label class="chk ${wOn?'on':''}" data-act="toggleWrapped"><span class="box"></span>
+        <span class="chk-txt">🎬 <b>Wrapped tonen</b><br><span class="muted2">Zet aan aan het einde van de vakantie. Verschijnt dan op het startscherm.</span></span></label>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <label class="chk ${rOn?'on':''}" data-act="toggleRb"><span class="box"></span>
+        <span class="chk-txt">😈 <b>Ragebait</b><br><span class="muted2">Willekeurige plagerij, hoogstens 1× per 2 potjes. Alleen voor het doelwit.</span></span></label>
+      <div class="set-row" style="margin-top:14px">
+        <span class="field-lbl" style="margin:0">Doelwit</span>
+        <select class="set-sel" data-act="rbTarget" id="rbTargetSel">`;
+  for(const s of App.spelers) html+=`<option value="${s.id}" ${s.id===tgt?'selected':''}>${s.naam}</option>`;
+  html+=`</select></div>
+      <div class="hint">Actieve grappen: vluchtende opslaan-knop, neppe laadtijd, winnaar-ontkenning, roast-toasts, scheve wereld, captcha en fake-diskwalificatie — willekeurig gekozen.</div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">🎯 Verras een speler</div>
+      <div class="hint" style="margin-top:4px">Wijs een willekeurige ragebait toe. Die gaat af bij het eerstvolgende potje dat die speler meespeelt (los van het doelwit en de cooldown).</div>
+      <div class="set-row" style="margin-top:12px;gap:8px">
+        <select class="set-sel" id="rbAssignSel" style="flex:1">${App.spelers.map(s=>`<option value="${s.id}">${s.naam}</option>`).join('')}</select>
+        <button class="btn brass" style="width:auto;padding:0 14px" data-act="rbAssign">Toewijzen</button>
+      </div>${(()=>{ const pk=App.allSpelers.filter(s=>s.pending_rb && s.actief!==false); return pk.length?`<div class="hint" style="margin-top:10px">Klaargezet voor: ${pk.map(s=>`<span class="pend-chip">${s.naam}<b data-act="rbClearPending" data-id="${s.id}">✕</b></span>`).join('')}</div>`:''; })()}
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">🧪 Simulatie — test elke ragebait</div>
+      <div class="hint" style="margin-top:4px">Bekijk elk effect op je eigen scherm.</div>
+      <div class="sim-grid">
+        <button class="btn ghost dark" data-act="rbPreview" data-type="A">🏃 Vluchtende knop</button>
+        <button class="btn ghost dark" data-act="rbPreview" data-type="B">⏳ Neppe laadtijd</button>
+        <button class="btn ghost dark" data-act="rbPreview" data-type="C">🚫 Winnaar-weigering</button>
+        <button class="btn ghost dark" data-act="rbPreview" data-type="D">🗯️ Roast-toast</button>
+        <button class="btn ghost dark" data-act="rbPreview" data-type="E">🌀 Scheve wereld</button>
+        <button class="btn ghost dark" data-act="rbPreview" data-type="F">🤖 Captcha</button>
+        <button class="btn ghost dark" data-act="rbPreview" data-type="H">⚠️ Diskwalificatie</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">🎲 Handicaps</div>
+      <label class="chk ${hcOn()?'on':''}" data-act="toggleHc" style="margin-top:10px"><span class="box"></span>
+        <span class="chk-txt"><b>Handicaps toestaan</b><br><span class="muted2">Uit = knop verdwijnt en lopende handicaps worden verborgen.</span></span></label>
+      <div class="field-lbl" style="margin-top:14px">Hoe vaak een handicap bij de start van een potje?</div>
+      <div class="hc-freq">${[2,3,4].map(n=>`<button class="${hcFreq()===n?'on':''}" data-act="hcFreq" data-n="${n}">1 op de ${n}</button>`).join('')}</div>
+      <div class="hint">Nu: gemiddeld <b>1 op de ${hcFreq()}</b> potjes krijgt iemand automatisch een handicap. Bij elke nieuwe start worden oude handicaps opgeheven.</div>
+      <div class="field-lbl" style="margin-top:14px">Wie mag een handicap krijgen?</div>
+      <div class="p-list" style="margin-top:6px">${App.spelers.map(s=>`<div class="sel-item ${hcMayGet(s.id)?'on':''}" data-act="hcAllow" data-id="${s.id}"><div class="box"></div>${avatarHTML(s.id,'sm')}<div class="nm">${s.naam}</div></div>`).join('')}</div>
+      <div class="field-lbl" style="margin-top:14px">Direct toewijzen</div>
+      <div class="set-row" style="gap:8px">
+        <select class="set-sel" id="hcAssignSel" style="flex:1">${App.spelers.filter(s=>hcMayGet(s.id)).map(s=>`<option value="${s.id}">${s.naam}</option>`).join('')}</select>
+        <button class="btn brass" style="width:auto;padding:0 14px" data-act="hcAssignPick">🎲 Geef handicap</button>
+      </div>
+      ${activeHandicaps().length?`<div class="hint" style="margin-top:10px">Actief: ${activeHandicaps().map(h=>`<span class="pend-chip">${naamVan(h.id)}<b data-act="hcClear" data-id="${h.id}">✕</b></span>`).join('')}</div>
+      <button class="btn ghost dark" style="margin-top:10px" data-act="hcClearAll">Alle handicaps opheffen</button>`:`<div class="hint" style="margin-top:8px">Geen actieve handicaps.</div>`}
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">🆕 Nieuwe functies testen</div>
+      <div class="hint" style="margin-top:4px">Bekijk de nieuwe grappen los. (Het bierlogboek staat op het startscherm.)</div>
+      <div class="sim-grid">
+        <button class="btn ghost dark" data-act="previewNew" data-type="persona">🎭 Persona-sneers</button>
+        <button class="btn ghost dark" data-act="previewNew" data-type="boete">🍺 Boete</button>
+        <button class="btn ghost dark" data-act="previewNew" data-type="handicap">🎲 Handicap</button>
+        <button class="btn ghost dark" data-act="previewNew" data-type="twist">🌀 Mystery-twist</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">🗑️ Potjes beheren</div>
+      <div class="hint" style="margin-top:4px">Verwijder een potje als er iets misging. Dit kan niet ongedaan gemaakt worden.</div>
+      <div class="p-list" style="margin-top:10px">${ App.potjes.length ? App.potjes.slice(0,25).map(p=>{ const g=GAMES[p.spel]; const d=new Date(p.gestart).toLocaleDateString('nl-NL',{day:'numeric',month:'short'}); const st=p.status==='afgerond'?('winnaar: '+naamVan(p.winnaarId)):'⏳ bezig'; return `<div class="p-item"><div class="av">${g?g.suit:'?'}</div><div class="txt"><div class="nm">${g?g.naam:p.spel}</div><div class="fotolink">${d} · ${st}</div></div><button class="x" data-act="delPotje" data-id="${p.id}" aria-label="verwijderen">×</button></div>`; }).join('') : '<div class="muted2" style="padding:4px 2px">Nog geen potjes.</div>' }</div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">🔌 Database</div>
+      ${ Store.useSupa
+        ? `<div class="hint" style="margin-top:4px">Online via Supabase. De gratis database pauzeert na 7 dagen zonder activiteit.</div>
+           <div class="hint" style="margin-top:6px">Laatst wakker gemaakt: <b>${keepAliveDate()?keepAliveDate().toLocaleString('nl-NL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}</b></div>
+           <button class="btn brass" style="margin-top:10px" data-act="keepAlive">Houd database levend</button>`
+        : `<div class="hint" style="margin-top:4px">Nu <b>lokaal</b> (alleen dit toestel). Vul bovenin het bestand je Supabase-gegevens in om online + cross-device te gaan.</div>` }
+    </div>
+    <div class="btn-row"><button class="btn ghost" data-nav="home">Terug</button></div>`;
+  el.innerHTML=html;
+  const sel=document.getElementById('rbTargetSel');
+  sel&&sel.addEventListener('change',()=>{ sset('rb_target', sel.value); toast('Doelwit: '+sel.options[sel.selectedIndex].text); });
+}
+function renderHome(){
+  const ap=App.activePotje; let html='';
+  const per=personaFor(App.me);
+  if(per){ const bc=bierCount(App.me); html+=`<div class="persona-hi"><span class="ph-emoji">${per.e}</span><div><div class="ph-name">Hé ${naamVan(App.me)}</div><div class="ph-line">${per.line}${bc?` · 🍺 ${bc}`:''}</div></div></div>`; }
+  html+=handicapBannerHTML();
+  if(ap){
+    const g=GAMES[ap.spel]; const st=ordered(ap); const leader=st[0];
+    const extra = ap.spel==='boerenbridge' ? `ronde ${ap.rondes.length+1}/${ap.plan.length}` : `ronde ${ap.rondes.length+1}`;
+    html+=`<div class="card">
+      <div class="eyebrow">Potje bezig · ${extra}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+        <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;color:var(--ink)">${g.suit} ${g.naam}</div>
+        <div class="mono" style="color:var(--ink-soft);font-size:12px">${ap.spelerIds.length} spelers</div>
+      </div>
+      <div class="hint" style="margin-top:8px">Aan kop: <b>${leader?naamVan(leader.id):'—'}</b> · ${leader?fmtScore(ap,leader.tot):''}</div>
+      <div class="btn-row"><button class="btn brass" data-act="resume">Verder spelen</button></div>
+    </div>`;
+  }
+  html+=`<h2 class="view-title">Nieuw potje</h2>
+    <div class="muted">Kies een spel. De app rekent de punten zelf uit en houdt de stand bij.</div>
+    <div class="games">
+      <button class="game-tile tile-toepen" data-game="toepen" ${ap?'disabled':''}><span class="gt-suit">♥</span>
+        <h3>Toepen</h3><p>Strafpunten · dood bij 15 · laagste stand wint</p></button>
+      <button class="game-tile tile-bb" data-game="boerenbridge" ${ap?'disabled':''}><span class="gt-suit">♠</span>
+        <h3>Boerenbridge</h3><p>Voorspel je slagen · 10 + 2 per slag · hoogste stand wint</p></button>
+    </div>`;
+  if(ap) html+=`<div class="hint" style="color:var(--bone-dim);margin-top:12px">Er loopt nog een potje. Rond het af om een nieuw spel te starten.</div>`;
+  const toolBtns=[`<button class="tool-btn" data-act="openRad"><span class="tic">🎡</span><span>Deler-rad<small>wie deelt / haalt bier?</small></span></button>`];
+  if(hcOn()) toolBtns.push(`<button class="tool-btn" data-act="handicap"><span class="tic">🎲</span><span>Handicap<small>drankstraf voor een speler</small></span></button>`);
+  toolBtns.push(`<button class="tool-btn" data-act="openBier"><span class="tic">🍺</span><span>Bierlogboek<small>${App.me?bierCount(App.me):0} gelogd</small></span></button>`);
+  if(wrappedIsUnlocked()) toolBtns.push(`<button class="tool-btn" data-act="openWrapped"><span class="tic">🎬</span><span>Wrapped<small>samenvatting van de vakantie</small></span></button>`);
+  if(isTom(App.me)) toolBtns.push(`<button class="tool-btn" data-act="openSettings"><span class="tic">⚙️</span><span>Instellingen<small>beheer &amp; ragebait</small></span></button>`);
+  html+=`<div class="tools">${toolBtns.join('')}</div>`;
+  const done=App.potjes.filter(p=>p.status==='afgerond').slice(0,4);
+  if(done.length){
+    html+=`<div class="divider"></div><div class="eyebrow">Laatste potjes</div><div class="p-list" style="margin-top:10px">`;
+    for(const p of done){ const g=GAMES[p.spel];
+      html+=`<div class="p-item">${avatarHTML(p.winnaarId)}<div class="txt"><div class="nm">${g.naam}</div>
+        <div class="fotolink">winnaar: ${naamVan(p.winnaarId)}</div></div>
+        <div class="mono" style="font-size:11px;color:var(--ink-soft)">${new Date(p.gestart).toLocaleDateString('nl-NL',{day:'numeric',month:'short'})}</div></div>`; }
+    html+=`</div>`;
+  }
+  el.innerHTML=html;
+}
+
+/* ---- SPELERS ---- */
+function renderSpelers(){
+  let html=`<h2 class="view-title">Spelers</h2>
+    <div class="muted">Voeg iedereen toe die meedoet. Tik op een avatar om er een te kiezen.</div>
+    <div class="p-add"><input id="newP" placeholder="Naam…" autocomplete="off" maxlength="24">
+      <button class="btn brass" style="width:auto;padding:0 20px" data-act="addP">Toevoegen</button></div>`;
+  if(!App.spelers.length){ html+=`<div class="empty"><div class="big">☺</div>Nog geen spelers. Voeg de eerste toe.</div>`; }
+  else{ html+=`<div class="p-list">`;
+    for(const s of App.spelers){
+      html+=`<div class="p-item">
+        <div class="av-edit" data-act="pickAvatar" data-id="${s.id}">${avatarHTML(s.id)}<span class="cam">✎</span></div>
+        <div class="txt"><div class="nm">${s.naam}</div>
+          <div class="fotolink">${App.pickerFor===s.id?'kies een avatar':'tik avatar om te kiezen'}</div></div>
+        <button class="x" data-act="delP" data-id="${s.id}" aria-label="verwijderen">×</button></div>`;
+      if(App.pickerFor===s.id){
+        html+=`<div class="picker-wrap"><div class="avatar-grid">`;
+        for(const key of Object.keys(PRESETS)){
+          html+=`<button class="opt" data-act="setAvatar" data-id="${s.id}" data-key="${key}"><div class="av" style="background:${PRESETS[key].bg}"><span class="emo">${PRESETS[key].e}</span></div></button>`;
+        }
+        html+=`<button class="opt none" data-act="setAvatar" data-id="${s.id}" data-key="">${initialen(s.naam)}</button>`;
+        html+=`</div></div>`;
+      }
+    }
+    html+=`</div>`;
+  }
+  el.innerHTML=html;
+  const inp=document.getElementById('newP'); inp&&inp.addEventListener('keydown',e=>{ if(e.key==='Enter') addSpeler(); });
+}
+
+/* ---- NIEUW POTJE ---- */
+function renderNieuw(){
+  const g=GAMES[App.draft.spel]; const sel=App.draft.spelerIds;
+  const allOn=App.spelers.length>0 && sel.length===App.spelers.length;
+  let html=`<h2 class="view-title">${g.suit} ${g.naam}</h2><div class="muted">Wie doen er mee? (min. 2)</div>`;
+  if(!App.spelers.length){ html+=`<div class="empty"><div class="big">☺</div>Voeg eerst spelers toe onder “Spelers”.</div>`; }
+  else{
+    html+=`<div class="selbar"><span class="cnt">${sel.length} geselecteerd</span>
+      <button class="btn ghost small" data-act="selAll">${allOn?'Niemand':'Alle spelers'}</button></div>`;
+    html+=`<div class="p-list" style="margin-top:10px">`;
+    for(const s of App.spelers){ const on=sel.includes(s.id);
+      html+=`<div class="sel-item ${on?'on':''}" data-act="togP" data-id="${s.id}"><div class="box"></div>
+        ${avatarHTML(s.id,'sm')}<div class="nm">${s.naam}</div></div>`; }
+    html+=`</div>`;
+    if(App.draft.spel==='boerenbridge'){
+      const n=Math.max(2,sel.length); const mp=maxPeak(n);
+      if(App.draft.peak>mp) App.draft.peak=mp;
+      const plan=bbPlan(App.draft.peak);
+      html+=`<div class="card" style="margin-top:12px">
+        <span class="field-lbl">Hoogste aantal kaarten per speler (piek)</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="stepper"><button data-act="peak" data-d="-1">–</button><span class="val" id="peakVal">${App.draft.peak}</span><button data-act="peak" data-d="1">+</button></div>
+          <div class="mono" style="font-size:12px;color:var(--ink-soft)">schema 1 → ${App.draft.peak} → 1 = <b>${plan.length} rondes</b></div>
+        </div>
+        <div class="hint">Elke ronde weet de app hoeveel kaarten er zijn, dus de biedregel (voorspellingen samen ≠ kaarten) klopt de hele wedstrijd.</div>
+      </div>`;
+    }
+  }
+  html+=`<div class="btn-row"><button class="btn ghost" data-act="cancelNew">Terug</button>
+      <button class="btn brass" data-act="startPotje" ${sel.length<2?'disabled':''}>Start potje (${sel.length})</button></div>`;
+  el.innerHTML=html;
+}
+
+/* ---- SPEL ---- */
+function toepenMeter(t){ const pct=Math.min(100,Math.round(Math.max(0,t)/DOOD*100));
+  const cls=t>=DOOD?'danger':(t>=DOOD-3?'warn':''); return `<div class="meter ${cls}"><i style="width:${pct}%"></i></div>`; }
+
+function renderSpel(){
+  const p=App.activePotje; if(!p){ go('home'); return; }
+  ensureCurseForPotje(p);
+  const g=GAMES[p.spel]; ensureDraft(p);
+  const order=inputOrder(p);
+
+  if(App.reorder) return renderReorder(p,order);
+
+  const rows=ordered(p);
+  let standList=`<div class="standings" style="margin-top:12px">`;
+  rows.forEach((r,i)=>{ const meter=p.spel==='toepen'?toepenMeter(r.tot):'';
+    standList+=`<div class="srow ${i===0&&!r.dood?'leader':''} ${r.dood?'dead':''}">
+      <span class="rank">${i+1}</span>
+      <div class="idcell">${avatarHTML(r.id,'sm')}<div class="nmwrap"><div class="nm">${naamVan(r.id)}</div>${meter}</div></div>
+      <div class="tot">${r.tot}</div></div>`; });
+  standList+=`</div>`;
+
+  const rn=p.rondes.length+1;
+  let form=`<div class="card">`;
+
+  if(p.spel==='boerenbridge'){
+    const cards=p.plan[p.rondes.length] ?? 0;
+    const dealerId=App.draft.dealerId;
+    form+=`<div class="round-head"><span class="rn">Ronde ${rn} / ${p.plan.length}</span>
+      <span class="mono" style="font-size:13px;color:var(--ink-soft)"><b style="font-size:16px;color:var(--ink)">${cards}</b> kaart${cards===1?'':'en'}</span></div>`;
+    form+=`<div class="mono" style="font-size:12px;color:var(--ink-soft);margin-top:2px">🂠 <b style="color:var(--ink)">${naamVan(dealerId)}</b> deelt · schuift elke ronde door</div>`;
+    // progress dots
+    form+=`<div class="progress">`;
+    p.plan.forEach((c,i)=>{ const cls=i<p.rondes.length?'done':(i===p.rondes.length?'now':''); form+=`<i class="${cls}" title="${c}"></i>`; });
+    form+=`</div>`;
+    form+=`<button class="btn ghost dark small" style="margin-top:10px" data-act="openReorder">⇅ Volgorde aanpassen</button>`;
+    form+=`<div class="hint">Vul per speler <b>voorspelling</b> en <b>gehaalde slagen</b> in. De <b>deler</b> (tik “deelt” om te corrigeren) mag niet zó bieden dat de voorspellingen samen precies ${cards} worden.</div>`;
+    form+=`<div class="colhead bb"><span style="text-align:left">Speler</span><span>Voorsp.</span><span>Gehaald</span><span style="text-align:right">Ptn</span></div>`;
+    order.forEach((id)=>{
+      const isDealer=id===dealerId;
+      const e=App.draft.entries[id]||{voorspelling:'',gehaald:''};
+      const pv=(e.voorspelling!==''&&e.gehaald!=='')?bbPunten(e.voorspelling,e.gehaald):null;
+      form+=`<div class="prow bb ${isDealer?'dealer':''}">
+        <div class="pnmcell">${avatarHTML(id,'sm')}<div class="pnm">${naamVan(id)}</div><button class="deal-chip ${isDealer?'on':''}" data-act="pickDealer" data-id="${id}">deelt</button></div>
+        <input class="num" type="number" min="0" inputmode="numeric" pattern="[0-9]*" data-bb="voorspelling" data-id="${id}" value="${e.voorspelling}">
+        <input class="num" type="number" min="0" inputmode="numeric" pattern="[0-9]*" data-bb="gehaald" data-id="${id}" value="${e.gehaald}">
+        <div class="pts ${pv==null?'':(pv<0?'neg':'pos')}" data-pts="${id}">${pv==null?'–':(pv>0?'+'+pv:pv)}</div>
+      </div>${isDealer?`<div class="dealer-hint" id="dealerHint"></div>`:''}`;
+    });
+    form+=`<div class="sumbar"><span class="s" id="sumBid">Voorspeld <b>0</b>/${cards}</span><span class="s" id="sumTrick">Gehaald <b>0</b>/${cards}</span></div>`;
+  } else {
+    form+=`<div class="round-head"><span class="rn">Ronde ${rn}</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="field-lbl" style="margin:0">Inzet</span>
+      <div class="stepper"><button data-act="inzet" data-d="-1">–</button><span class="val" id="inzetVal">${App.draft.inzet}</span><button data-act="inzet" data-d="1">+</button></div></div></div>`;
+    form+=`<button class="btn ghost dark small" style="margin-top:6px" data-act="openReorder">⇅ Volgorde aanpassen</button>`;
+    form+=`<div class="hint">Kies de <b>winnaar</b> (0 strafpunten). De rest krijgt de inzet. Wie eerder paste met minder inzet: pas z'n getal aan.</div>`;
+    form+=`<div class="colhead tp"><span>Winnaar</span><span style="text-align:left">Speler</span><span style="text-align:right">Straf${App.draft.metBoer?' <b style="color:var(--rood)">×2</b>':''}</span></div>`;
+    for(const id of order){ if(isDood(p,id)) continue;
+      const isWin=App.draft.winnaarId===id;
+      const strafVal=isWin?0:(App.draft.strafpunten[id]??App.draft.inzet);
+      form+=`<div class="prow tp">
+        <button class="win-radio ${isWin?'on':''}" data-act="pickWin" data-id="${id}" aria-label="winnaar"></button>
+        <div class="pnmcell">${avatarHTML(id,'sm')}<div class="pnm">${naamVan(id)}</div></div>
+        <div class="straf-step">
+          <button class="ss-btn" data-act="strafMinus" data-id="${id}" ${isWin?'disabled':''}>–</button>
+          <input class="num ss-num" type="number" inputmode="numeric" pattern="[0-9]*" data-straf="${id}" value="${strafVal}" ${isWin?'disabled':''}>
+          <button class="ss-btn" data-act="strafPlus" data-id="${id}" ${isWin?'disabled':''}>+</button>
+        </div></div>`;
+    }
+    form+=`<label class="chk ${App.draft.metBoer?'on':''}" data-act="toggleBoer"><span class="box"></span><span class="chk-txt">Laatste slag met een <b>boer</b> gewonnen → strafpunten van de rest <b>×2</b></span></label>`;
+    if(App.draft.metBoer) form+=`<div class="hint" style="margin-top:6px">🃏 Alle strafpunten hierboven worden bij opslaan <b>verdubbeld</b>. De winnaar blijft op 0.</div>`;
+  }
+  form+=`<div class="btn-row"><button class="btn brass" data-act="saveRonde">Ronde opslaan</button></div></div>`;
+
+  let ctrl=`<div class="btn-row">
+    <button class="btn ghost" data-act="undoRonde" ${p.rondes.length?'':'disabled'}>Laatste ronde wissen</button>
+    <button class="btn red" data-act="finish" ${p.rondes.length?'':'disabled'}>Potje afronden</button></div>
+    <button class="btn ghost cancel-game" data-act="cancelGame" style="margin-top:10px">✕ Spel annuleren (telt niet mee)</button>`;
+
+  const tab=App.spelTab||'invoer';
+  const twist=potjeTwist(p); const tb=(twist?`<div class="twist-banner">${twist}</div>`:'')+handicapBannerHTML();
+  const seg=`<div class="seg" style="margin-top:8px">
+    <button class="seg-b ${tab==='invoer'?'on':''}" data-act="spelTab" data-tab="invoer">Invoer</button>
+    <button class="seg-b ${tab==='stand'?'on':''}" data-act="spelTab" data-tab="stand">Stand</button>
+  </div>`;
+  if(tab==='stand'){
+    el.innerHTML=seg+tb+standList+kansMeterHTML(p);
+  } else {
+    el.innerHTML=seg+tb+form+ctrl;
+    attachSpelInputs(p,order);
+    if(p.spel==='boerenbridge') recalcBB(p,order);
+  }
+  el.classList.toggle('rb-tilt', curseActive('E'));
+}
+
+function renderReorder(p,order){
+  let html=`<h2 class="view-title">Invoervolgorde</h2>
+    <div class="muted">Zet de spelers in de volgorde waarin je van boven naar beneden invult.${p.spel==='boerenbridge'?' De deler wisselt vanzelf elke ronde door — dat regel je niet hier.':''}</div>
+    <div class="reorder">`;
+  order.forEach((id,i)=>{
+    html+=`<div class="ro-item">${avatarHTML(id,'sm')}
+      <div class="nm">${naamVan(id)}</div>
+      <div class="ar"><button data-act="moveUp" data-id="${id}" ${i===0?'disabled':''}>▲</button>
+      <button data-act="moveDown" data-id="${id}" ${i===order.length-1?'disabled':''}>▼</button></div></div>`;
+  });
+  html+=`</div><div class="btn-row"><button class="btn brass" data-act="closeReorder">Klaar</button></div>`;
+  el.innerHTML=html;
+}
+
+function defaultDealer(p){
+  const order=inputOrder(p);
+  if(!p.rondes.length) return order[0];
+  const prev=p.rondes[p.rondes.length-1].dealerId;
+  const i=order.indexOf(prev);
+  return i<0 ? order[p.rondes.length % order.length] : order[(i+1)%order.length];
+}
+function ensureDraft(p){
+  if(App.draft && App.draft.potjeId===p.id && App.draft.ronde===p.rondes.length) return;
+  if(p.spel==='toepen') App.draft={ potjeId:p.id, ronde:p.rondes.length, winnaarId:null, inzet:1, metBoer:false, strafpunten:{} };
+  else { const entries={}; p.spelerIds.forEach(id=>entries[id]={voorspelling:'',gehaald:''});
+    App.draft={ potjeId:p.id, ronde:p.rondes.length, entries, dealerId:defaultDealer(p) }; }
+}
+
+/* live recompute for boerenbridge */
+function recalcBB(p,order){
+  const cards=p.plan[p.rondes.length] ?? 0;
+  const dealer=App.draft.dealerId;
+  let sumBid=0, sumTrick=0, othersFilled=true, sumOthers=0, allBidFilled=true;
+  for(const id of order){
+    const e=App.draft.entries[id]||{voorspelling:'',gehaald:''};
+    const vb=e.voorspelling==='' ? null : (Number(e.voorspelling)||0);
+    const tr=e.gehaald==='' ? null : (Number(e.gehaald)||0);
+    if(vb!==null) sumBid+=vb; else allBidFilled=false;
+    if(tr!==null) sumTrick+=tr;
+    if(id!==dealer){ if(vb===null) othersFilled=false; else sumOthers+=vb; }
+    const cell=el.querySelector(`[data-pts="${id}"]`);
+    if(cell){ if(vb!==null&&tr!==null){ const v=bbPunten(vb,tr); cell.textContent=v>0?'+'+v:v; cell.className='pts '+(v<0?'neg':'pos'); }
+      else { cell.textContent='–'; cell.className='pts'; } }
+  }
+  const sb=document.getElementById('sumBid'), stt=document.getElementById('sumTrick');
+  if(sb){ sb.innerHTML=`Voorspeld <b>${sumBid}</b>/${cards}`; sb.className='s '+(allBidFilled&&sumBid===cards?'bad':(sumBid>cards?'warn':'')); }
+  if(stt){ stt.innerHTML=`Gehaald <b>${sumTrick}</b>/${cards}`; stt.className='s '+(sumTrick===cards?'ok':(sumTrick>cards?'bad':'warn')); }
+  const forbidden = othersFilled ? cards - sumOthers : null;
+  const hint=document.getElementById('dealerHint');
+  const dealerInput=el.querySelector(`input[data-bb="voorspelling"][data-id="${dealer}"]`);
+  if(hint){
+    if(forbidden!==null && forbidden>=0 && forbidden<=cards){
+      hint.textContent=`${naamVan(dealer)} (deler) mag niet ${forbidden} bieden — dan wordt het totaal ${cards}.`;
+      hint.className='dealer-hint block';
+    } else if(othersFilled){ hint.textContent=`${naamVan(dealer)} (deler) is vrij: elk bod mag.`; hint.className='dealer-hint'; }
+    else { hint.textContent=`${naamVan(dealer)} deelt en biedt als laatste.`; hint.className='dealer-hint'; }
+  }
+  if(dealerInput){
+    const lv=App.draft.entries[dealer]?.voorspelling;
+    const bad = forbidden!==null && lv!=='' && lv!==undefined && (Number(lv)||0)===forbidden;
+    dealerInput.classList.toggle('bad',!!bad);
+  }
+}
+
+function attachSpelInputs(p,order){
+  if(p.spel==='boerenbridge'){
+    el.querySelectorAll('input[data-bb]').forEach(inp=>{ inp.addEventListener('input',()=>{
+      const id=inp.dataset.id,f=inp.dataset.bb;
+      App.draft.entries[id]=App.draft.entries[id]||{voorspelling:'',gehaald:''};
+      App.draft.entries[id][f]= inp.value==='' ? '' : Math.max(0,parseInt(inp.value)||0);
+      recalcBB(p,order);
+    }); });
+  } else {
+    el.querySelectorAll('input[data-straf]').forEach(inp=>{ inp.addEventListener('input',()=>{
+      App.draft.strafpunten[inp.dataset.straf]=parseInt(inp.value)||0; }); });
+  }
+}
+
+/* ============ ENGINES (rating · achievements · kans) ============ */
+function finishedChrono(){
+  return App.potjes.filter(p=>p.status==='afgerond')
+    .slice().sort((a,b)=> new Date(a.afgerond||a.gestart) - new Date(b.afgerond||b.gestart));
+}
+function betterFirst(potje){ // ids best->worst
+  return ordered(potje).map(r=>r.id);
+}
+/* Elo over eindklasseringen, verdeeld over alle tegenstanders */
+function computeRatings(){
+  const R={}, hist={}, games={};
+  const get=id=>{ if(R[id]===undefined){R[id]=1000;hist[id]=[{i:0,r:1000}];games[id]=0;} };
+  let step=0;
+  for(const p of finishedChrono()){
+    step++;
+    const ids=p.spelerIds.slice(); ids.forEach(get);
+    const n=ids.length; if(n<2) continue;
+    const low=GAMES[p.spel].lowerIsBetter;
+    const sc={}; ids.forEach(id=>sc[id]=totaal(p,id));
+    const K=32/(n-1), delta={}; ids.forEach(id=>delta[id]=0);
+    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+      const a=ids[i], b=ids[j], sa=sc[a], sb=sc[b];
+      let Sa; if(sa===sb) Sa=0.5; else Sa=(low? sa<sb : sa>sb)?1:0;
+      const Ea=1/(1+Math.pow(10,(R[b]-R[a])/400));
+      delta[a]+=K*(Sa-Ea); delta[b]+=K*((1-Sa)-(1-Ea));
+    }
+    ids.forEach(id=>{ R[id]+=delta[id]; games[id]++; hist[id].push({i:step,r:Math.round(R[id])}); });
+  }
+  return {R,hist,games};
+}
+/* per-speler aggregaten voor achievements & titels */
+function playerAgg(){
+  const A={};
+  const g=id=>{ if(!A[id])A[id]={potjes:0,wins:0,winsToepen:0,winsBB:0,lasts:0,
+    bbExact:0,bbZeroExact:0,bbBigExact:0,maxExactStreak:0,
+    maxStrafRonde:0,boerWins:0,boerVictim:0,cleanToepenWin:false,fastDeath:false,comeback:false,
+    nightWin:false,maxWinStreak:0,curWinStreak:0,winDays:{}}; return A[id]; };
+  for(const p of App.potjes.filter(x=>x.status==='afgerond')){
+    const ids=p.spelerIds, low=GAMES[p.spel].lowerIsBetter, rank=betterFirst(p);
+    const lastId=rank[rank.length-1];
+    ids.forEach(id=>g(id).potjes++);
+    if(p.winnaarId){ const a=g(p.winnaarId); a.wins++; p.spel==='toepen'?a.winsToepen++:a.winsBB++;
+      const day=(p.afgerond||p.gestart||'').slice(0,10); a.winDays[day]=(a.winDays[day]||0)+1;
+      const hr=p.afgerond?new Date(p.afgerond).getHours():12; if(hr>=0&&hr<6)a.nightWin=true; }
+    if(lastId) g(lastId).lasts++;
+    if(p.spel==='boerenbridge'){
+      ids.forEach(id=>{ const a=g(id); let streak=0;
+        p.rondes.forEach((r,ri)=>{ const e=r.entries&&r.entries[id]; if(!e)return;
+          if(Number(e.voorspelling)===Number(e.gehaald)){ a.bbExact++; streak++; if(streak>a.maxExactStreak)a.maxExactStreak=streak;
+            if(Number(e.voorspelling)===0&&Number(e.gehaald)===0)a.bbZeroExact++;
+            if((p.plan&&p.plan[ri])>=6)a.bbBigExact++;
+          } else streak=0; }); });
+    } else {
+      ids.forEach(id=>{ const a=g(id); let run=0,above5=false,died=null;
+        p.rondes.forEach((r,ri)=>{ const pts=toepenRondePunten(r,id); run+=pts;
+          if(pts>a.maxStrafRonde)a.maxStrafRonde=pts;
+          if(r.winnaarId===id&&r.metBoer)a.boerWins++;
+          if(r.metBoer&&r.winnaarId!==id&&pts>0)a.boerVictim++;
+          if(run>5)above5=true; if(died===null&&run>=DOOD)died=ri+1; });
+        if(died!==null&&died<=4)a.fastDeath=true;
+        if(p.winnaarId===id&&!above5)a.cleanToepenWin=true; });
+    }
+    if(p.winnaarId){ const w=p.winnaarId, cum={}; ids.forEach(id=>cum[id]=0); let wasLast=false;
+      p.rondes.forEach((r,ri)=>{
+        ids.forEach(id=>{ cum[id]+= p.spel==='toepen'?toepenRondePunten(r,id):((r.entries&&r.entries[id])?bbPunten(r.entries[id].voorspelling,r.entries[id].gehaald):0); });
+        const arr=ids.map(id=>({id,v:cum[id]})).sort((x,y)=> low? x.v-y.v : y.v-x.v);
+        if(ri>0 && ri<p.rondes.length-1 && arr[arr.length-1].id===w) wasLast=true; });
+      if(wasLast) g(w).comeback=true; }
+  }
+  for(const id in A) A[id].sameDayDouble=Object.values(A[id].winDays).some(c=>c>=2);
+  /* winstreaks: opeenvolgende potjes (waaraan je meedeed) gewonnen */
+  for(const p of finishedChrono()){
+    for(const id of p.spelerIds){ const a=g(id);
+      if(p.winnaarId===id){ a.curWinStreak++; if(a.curWinStreak>a.maxWinStreak)a.maxWinStreak=a.curWinStreak; }
+      else a.curWinStreak=0; }
+  }
+  return A;
+}
+const ACHS=[
+  {id:'ziener',e:'🎯',naam:'De Ziener',desc:'10 rondes exact voorspeld',test:a=>a.bbExact>=10},
+  {id:'nulheld',e:'🥚',naam:'Nul-Held',desc:'5× exact 0 voorspeld én 0 gehaald',test:a=>a.bbZeroExact>=5},
+  {id:'grootkaart',e:'🗺️',naam:'Grootkaartier',desc:'Exact voorspeld bij 6+ kaarten',test:a=>a.bbBigExact>=1},
+  {id:'waarzegger',e:'🧠',naam:'Waarzegger op Streek',desc:'5 rondes op rij exact in één potje',test:a=>a.maxExactStreak>=5},
+  {id:'boerenkoning',e:'👑',naam:'Boerenkoning',desc:'3 boerenbridge-potjes gewonnen',test:a=>a.winsBB>=3},
+  {id:'toepkoning',e:'♥',naam:'Toepkoning',desc:'3 toepen-potjes gewonnen',test:a=>a.winsToepen>=3},
+  {id:'kamikaze',e:'☠️',naam:'Kamikaze',desc:'Dood binnen 4 rondes (toepen)',test:a=>a.fastDeath},
+  {id:'onverwoestbaar',e:'🧱',naam:'Onverwoestbaar',desc:'Toepen gewonnen zonder ooit >5 strafpunten',test:a=>a.cleanToepenWin},
+  {id:'hoogleraar',e:'🎲',naam:'Hoogleraar Strafpunten',desc:'10+ strafpunten in één ronde',test:a=>a.maxStrafRonde>=10},
+  {id:'boertrots',e:'🃏',naam:'Boer & Trots',desc:'3 rondes gewonnen met een boer',test:a=>a.boerWins>=3},
+  {id:'dubbelslag',e:'🏆',naam:'Dubbelslag',desc:'2 potjes op dezelfde dag gewonnen',test:a=>a.sameDayDouble},
+  {id:'lantaarn',e:'🐌',naam:'Rode Lantaarn',desc:'3× laatste geworden',test:a=>a.lasts>=3},
+  {id:'comeback',e:'🔥',naam:'Comeback Kid',desc:'Gewonnen na ooit laatst te staan',test:a=>a.comeback},
+  {id:'hattrick',e:'🎩',naam:'Hattrick',desc:'3 potjes op rij gewonnen',test:a=>a.maxWinStreak>=3},
+  {id:'nachtbraker',e:'🌙',naam:'Nachtbraker',desc:'Potje gewonnen tussen 00:00 en 06:00',test:a=>a.nightWin},
+  {id:'dubbelgepakt',e:'🐷',naam:'Dubbel Gepakt',desc:'3× dubbele straf gekregen door een boer',test:a=>a.boerVictim>=3},
+];
+function computeAchievements(){ const agg=playerAgg(), out={};
+  for(const id in agg) out[id]=ACHS.filter(x=>x.test(agg[id])).map(x=>x.id);
+  return {out,agg}; }
+function computeTitles(){
+  const {R,games}=computeRatings(), {agg}=computeAchievements(), titles={};
+  const add=(id,t)=>{ if(id){(titles[id]=titles[id]||[]).push(t);} };
+  const elig=Object.keys(R).filter(id=>games[id]>=1);
+  if(elig.length){ const byR=elig.slice().sort((a,b)=>R[b]-R[a]);
+    add(byR[0],{e:'👑',t:'Grootmeester'});
+    if(elig.length>=3) add(byR[byR.length-1],{e:'🎯',t:'Kanonnenvoer'}); }
+  const lead=(sel)=>{ let best=null,bv=0; for(const id in agg){ const v=sel(agg[id]); if(v>bv){bv=v;best=id;} } return best; };
+  add(lead(a=>a.bbExact),{e:'🔮',t:'Het Orakel'});
+  add(lead(a=>a.boerWins),{e:'🃏',t:'Boerenbedrog'});
+  add(lead(a=>a.maxStrafRonde),{e:'💥',t:'Brokkenpiloot'});
+  add(lead(a=>a.lasts),{e:'🐌',t:'Rode Lantaarn'});
+  return titles;
+}
+/* Monte Carlo winkans voor het lopende potje */
+function winProb(potje,SIMS=2000){
+  const ids=potje.spelerIds, n=ids.length;
+  if(n<2||!potje.rondes.length) return null;
+  const low=GAMES[potje.spel].lowerIsBetter;
+  const base={}; ids.forEach(id=>base[id]=totaal(potje,id));
+  const wins={}; ids.forEach(id=>wins[id]=0);
+  if(potje.spel==='boerenbridge'){
+    const remaining=potje.plan.slice(potje.rondes.length);
+    if(!remaining.length){ const w=betterFirst(potje)[0]; wins[w]=SIMS; }
+    else{
+      const pool={}; ids.forEach(id=>pool[id]=[]); const global=[];
+      potje.rondes.forEach(r=>ids.forEach(id=>{ const e=r.entries&&r.entries[id]; if(e){const v=bbPunten(e.voorspelling,e.gehaald);pool[id].push(v);global.push(v);} }));
+      const prior=[-4,-2,-2,10,12,14,16];
+      const smp=id=>{ const p=pool[id].length>=2?pool[id]:(global.length>=3?global:prior); return p[(Math.random()*p.length)|0]; };
+      for(let s=0;s<SIMS;s++){ const t={}; ids.forEach(id=>t[id]=base[id]);
+        for(let k=0;k<remaining.length;k++) ids.forEach(id=>t[id]+=smp(id));
+        let bi=ids[0]; ids.forEach(id=>{ if(t[id]>t[bi])bi=id; }); wins[bi]++; }
+    }
+  } else {
+    const share={}; ids.forEach(id=>share[id]=1);
+    potje.rondes.forEach(r=>{ if(r.winnaarId)share[r.winnaarId]+=1; });
+    const iz=potje.rondes.map(r=>r.inzet).filter(x=>x>0); const izPool=iz.length?iz:[1,1,2,2,3];
+    for(let s=0;s<SIMS;s++){ const t={}; ids.forEach(id=>t[id]=base[id]);
+      let alive=ids.filter(id=>t[id]<DOOD), guard=0;
+      while(alive.length>1 && guard++<300){
+        const ws=alive.reduce((a,id)=>a+share[id],0); let rr=Math.random()*ws, win=alive[0];
+        for(const id of alive){ rr-=share[id]; if(rr<=0){win=id;break;} }
+        const inz=izPool[(Math.random()*izPool.length)|0];
+        alive.forEach(id=>{ if(id!==win)t[id]+=inz; });
+        alive=alive.filter(id=>t[id]<DOOD);
+      }
+      let win = alive.length===1?alive[0]:ids.reduce((m,id)=>t[id]<t[m]?id:m,ids[0]);
+      wins[win]++;
+    }
+  }
+  const tot=Object.values(wins).reduce((a,b)=>a+b,0)||1, prob={};
+  ids.forEach(id=>prob[id]=wins[id]/tot); return prob;
+}
+function kansMeterHTML(p){
+  if(!p.rondes.length) return '';
+  const prob=winProb(p); if(!prob) return '';
+  const rows=p.spelerIds.map(id=>({id,pr:prob[id]||0})).sort((a,b)=>b.pr-a.pr);
+  let h=`<div class="card kans"><div class="eyebrow">🎰 Kans-o-meter</div>
+    <div class="hint" style="margin-top:2px">Live winkans uit 2000 gesimuleerde potjes.</div>`;
+  rows.forEach(r=>{ const pct=Math.round(r.pr*100);
+    h+=`<div class="kans-row"><div class="pnmcell">${avatarHTML(r.id,'sm')}<div class="pnm">${naamVan(r.id)}</div></div>
+      <div class="kans-bar"><i style="width:${pct}%"></i></div><div class="kans-pct">${pct}%</div></div>`; });
+  const low=rows[rows.length-1];
+  if(rows.length>1 && low.pr<0.05) h+=`<div class="hint" style="color:var(--rood)">${naamVan(low.id)} mag de kaarten alvast opruimen…</div>`;
+  return h+`</div>`;
+}
+function confetti(){
+  const c=document.createElement('div'); c.className='confetti';
+  const cols=['#C9A24B','#B23A34','#5c9a6f','#EFE6D0','#5f6a8f','#d87a99'];
+  for(let i=0;i<44;i++){ const s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%'; s.style.background=cols[i%cols.length];
+    s.style.animationDelay=(Math.random()*0.5)+'s'; s.style.animationDuration=(1.8+Math.random()*1)+'s';
+    c.appendChild(s); }
+  document.body.appendChild(c); setTimeout(()=>c.remove(),3000);
+}
+function renderBier(){
+  const types=bierTypes(); const me=App.me;
+  let html=`<h2 class="view-title">🍺 Bierlogboek</h2>`;
+  if(!me){ html+=`<div class="empty"><div class="big">🍺</div>Log eerst in als speler.</div>`; el.innerHTML=html; return; }
+  const mine=bierLog(me), mijnTotaal=bierCount(me);
+  html+=`<div class="muted">Tik een biertje aan om er één te loggen voor <b>${naamVan(me)}</b>.</div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">Wat drink je?</div>
+      <div class="bier-chips">${types.map(t=>`<button class="bier-chip" data-act="bierLog" data-type="${t.replace(/"/g,'&quot;')}">${t}${mine[t]?`<b>${mine[t]}</b>`:''}</button>`).join('')}</div>
+      <div class="bier-add"><input id="bierNew" class="id-input" style="margin-top:0" placeholder="Nieuw biertje toevoegen…" maxlength="24" autocomplete="off" enterkeyhint="done">
+        <button class="btn brass" style="width:auto;padding:0 16px;margin-top:0" data-act="bierAddType">➕</button></div>
+      <div class="hint">Iedereen mag types toevoegen — ze verschijnen bij alle spelers.</div>
+    </div>`;
+  const mijnLijst=Object.keys(mine).sort((a,b)=>mine[b]-mine[a]);
+  html+=`<div class="card" style="margin-top:12px"><div class="eyebrow">Jouw logboek · ${mijnTotaal} totaal</div>`;
+  html+= mijnLijst.length? `<div class="p-list" style="margin-top:10px">${mijnLijst.map(t=>`<div class="p-item"><div class="av">🍺</div><div class="txt"><div class="nm">${t}</div><div class="fotolink">${mine[t]}× gedronken</div></div><button class="x" data-act="bierMinus" data-type="${t.replace(/"/g,'&quot;')}" aria-label="min 1">−</button></div>`).join('')}</div>`
+    : `<div class="hint" style="margin-top:6px">Nog niks gelogd. Proost erop los.</div>`;
+  html+=`</div>`;
+  const rows=App.spelers.map(s=>({id:s.id,n:bierCount(s.id),top:bierTop(s.id)})).filter(r=>r.n>0).sort((a,b)=>b.n-a.n);
+  html+=`<div class="divider"></div><div class="eyebrow">Ranglijst</div>`;
+  html+= rows.length? `<div class="p-list" style="margin-top:10px">${rows.map((r,i)=>`<div class="lb-item ${i===0?'top':''}"><div class="medal">${i===0?'🍺':'#'+(i+1)}</div>
+      <div class="lb-cell">${avatarHTML(r.id)}<div><div class="nm">${naamVan(r.id)}</div><div class="split">${r.top?`favoriet: ${r.top.type}`:'—'}</div></div></div>
+      <div class="wins">${r.n}<small>bier</small></div></div>`).join('')}</div>`
+    : `<div class="empty"><div class="big">🍺</div>Nog niemand heeft iets gelogd.</div>`;
+  html+=`<div class="btn-row"><button class="btn ghost" data-nav="home">Terug</button></div>`;
+  el.innerHTML=html;
+  const i=document.getElementById('bierNew'); i&&i.addEventListener('keydown',e=>{ if(e.key==='Enter') doAddBierType(); });
+}
+function doAddBierType(){
+  const i=document.getElementById('bierNew'); if(!i) return;
+  const r=addBierType(i.value);
+  if(r==='leeg') return;
+  if(r==='bestaat'){ toast('Dat biertje staat er al'); return; }
+  toast(i.value.trim()+' toegevoegd 🍻'); i.value=''; render();
+}
+function hcPool(){ const p=App.activePotje; const ids=(p&&p.spelerIds&&p.spelerIds.length)?p.spelerIds.slice():App.spelers.map(s=>s.id); return hcEligibleFrom(ids); }
+function rollHandicap(keepId){ const pool=hcPool(); if(!pool.length) return null;
+  const id=(keepId&&pool.includes(keepId))?keepId:pool[(Math.random()*pool.length)|0];
+  const rule=HANDICAPS[(Math.random()*HANDICAPS.length)|0];
+  App.hcRoll={id,rule}; return App.hcRoll; }
+function showHandicap(keepId){
+  if(!hcOn()){ toast('Handicaps staan uit'); return; }
+  const r=rollHandicap(keepId);
+  let ov=document.getElementById('hrOv');
+  if(!ov){ ov=document.createElement('div'); ov.id='hrOv'; ov.className='rbov'; document.body.appendChild(ov); }
+  if(!r){ ov.innerHTML=`<div class="rbc"><div class="hr-rule">Geen spelers beschikbaar.</div><div class="hint">Check bij Instellingen wie een handicap mag krijgen.</div><div class="btn-row"><button class="btn brass" data-act="hrClose">Sluit</button></div></div>`; return; }
+  const pool=hcPool();
+  ov.innerHTML=`<div class="rbc"><div class="eyebrow" style="color:var(--brass-deep)">🎲 Handicap</div>
+    <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-top:12px">${avatarHTML(r.id,'lg')}<div class="hr-who">${naamVan(r.id)}</div></div>
+    <div class="hr-rule">${r.rule}</div>
+    <select class="set-sel" id="hcWho" style="width:100%">${pool.map(id=>`<option value="${id}" ${id===r.id?'selected':''}>${naamVan(id)}</option>`).join('')}</select>
+    <div class="btn-row"><button class="btn ghost dark" data-act="hrNew">🎲 Andere regel</button><button class="btn brass" data-act="hcAssign">Opleggen</button></div>
+    <button class="btn ghost dark" style="margin-top:8px" data-act="hrClose">Annuleer</button></div>`;
+  const s=document.getElementById('hcWho');
+  s&&s.addEventListener('change',()=>{ if(App.hcRoll){ App.hcRoll.id=s.value; showHandicapKeepRule(); } });
+}
+function showHandicapKeepRule(){ const r=App.hcRoll; if(!r) return;
+  const ov=document.getElementById('hrOv'); if(!ov) return;
+  const av=ov.querySelector('.hr-who'); if(av) av.textContent=naamVan(r.id);
+  const avatar=ov.querySelector('.av.lg'); if(avatar){ const tmp=document.createElement('div'); tmp.innerHTML=avatarHTML(r.id,'lg'); avatar.replaceWith(tmp.firstChild); } }
+function doAssignHandicap(){ const r=App.hcRoll; if(!r) return; const s=document.getElementById('hcWho'); const id=(s&&s.value)||r.id;
+  assignHandicap(id,r.rule); App.hcRoll=null; closeHandicap(); render(); toast('Handicap opgelegd aan '+naamVan(id)+' 😈'); confetti(); }
+function closeHandicap(){ const ov=document.getElementById('hrOv'); if(ov) ov.remove(); }
+function previewNew(type){
+  if(type==='handicap') return showHandicap();
+  if(type==='boete') return toast('🍺 Boete: '+randomBoete());
+  if(type==='twist'){
+    const t=TWISTS[(Math.random()*TWISTS.length)|0];
+    let ov=document.getElementById('twPrev'); if(!ov){ ov=document.createElement('div'); ov.id='twPrev'; ov.className='rbov'; document.body.appendChild(ov); }
+    ov.innerHTML=`<div class="rbc"><div class="eyebrow" style="color:var(--brass-deep)">🌀 Mystery-twist (voorbeeld)</div><div class="twist-banner" style="margin-top:12px;color:var(--ink)">${t}</div><div class="hint" style="margin-top:8px">Verschijnt willekeurig bovenin een potje (~40% kans).</div><div class="btn-row"><button class="btn brass" data-act="prevClose">Oké</button></div></div>`;
+    return;
+  }
+  if(type==='persona'){
+    let list=''; for(const k in PERSONA_CHAOS){ const p=PERSONA_CHAOS[k]; const nm=k.charAt(0).toUpperCase()+k.slice(1);
+      const save=p.save?p.save[(Math.random()*p.save.length)|0]:''; const loss=p.loss?p.loss[(Math.random()*p.loss.length)|0]:'';
+      list+=`<div class="per-row"><b>${nm}</b> <span class="muted2">bij opslaan</span> ${save}<br><span class="muted2">bij verlies</span> ${loss}</div>`; }
+    let ov=document.getElementById('perPrev'); if(!ov){ ov=document.createElement('div'); ov.id='perPrev'; ov.className='rbov'; document.body.appendChild(ov); }
+    ov.innerHTML=`<div class="rbc" style="max-height:74vh;overflow:auto;text-align:left"><div class="eyebrow" style="color:var(--brass-deep)">🎭 Persona-sneers</div>${list}<div class="btn-row"><button class="btn brass" data-act="prevClose">Sluit</button></div></div>`;
+    return;
+  }
+}
+function closePrev(){ ['twPrev','perPrev'].forEach(id=>{ const o=document.getElementById(id); if(o) o.remove(); }); }
+
+/* ---- rivaliteiten ---- */
+function rivalries(){
+  const pair={};
+  for(const p of App.potjes.filter(x=>x.status==='afgerond')){
+    const rank=ordered(p), pos={}; rank.forEach((r,i)=>pos[r.id]=i);
+    const ids=p.spelerIds;
+    for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){
+      const key=[ids[i],ids[j]].sort().join('|');
+      const o=pair[key]||(pair[key]={a:key.split('|')[0],b:key.split('|')[1],aWins:0,bWins:0,ties:0,shared:0,gapSum:0});
+      const pa=pos[o.a], pb=pos[o.b]; o.shared++; o.gapSum+=Math.abs(pa-pb);
+      if(pa<pb)o.aWins++; else if(pb<pa)o.bWins++; else o.ties++;
+    }
+  }
+  const list=Object.values(pair).filter(o=>o.shared>=2);
+  list.forEach(o=>{ o.avgGap=o.gapSum/o.shared; o.intensity=o.shared/(1+o.avgGap); });
+  list.sort((x,y)=> y.intensity-x.intensity || y.shared-x.shared);
+  return list;
+}
+function rivComment(o){
+  if(o.aWins===o.bWins) return 'Perfect in evenwicht — dit beslist de vakantie nog.';
+  const lead=o.aWins>o.bWins?o.a:o.b, other=lead===o.a?o.b:o.a;
+  const w=Math.max(o.aWins,o.bWins), l=Math.min(o.aWins,o.bWins);
+  if(l===0 && w>=3) return `${naamVan(lead)} loopt ongenadig over ${naamVan(other)} heen.`;
+  if(w-l>=3) return `${naamVan(lead)} heeft duidelijk de overhand.`;
+  if(o.avgGap<1.25) return 'Kop-aan-kop en messcherp — deze twee eindigen altijd naast elkaar.';
+  return `${naamVan(lead)} leidt nipt; ${naamVan(other)} ademt in z'n nek.`;
+}
+
+/* ---- Wrapped ---- */
+function wrappedStats(){
+  const done=App.potjes.filter(p=>p.status==='afgerond');
+  const {R,games}=computeRatings(); const agg=playerAgg();
+  let totalRondes=0; done.forEach(p=>totalRondes+=p.rondes.length);
+  const ratedIds=Object.keys(R).filter(id=>games[id]>=1).sort((a,b)=>R[b]-R[a]);
+  const mvp=ratedIds[0]||null;
+  let comeback=null;
+  for(const p of done){ if(!p.winnaarId)continue; const low=GAMES[p.spel].lowerIsBetter, ids=p.spelerIds, cum={}; ids.forEach(id=>cum[id]=0); let maxDef=0;
+    p.rondes.forEach((r,ri)=>{ ids.forEach(id=>{ cum[id]+= p.spel==='toepen'?toepenRondePunten(r,id):((r.entries&&r.entries[id])?bbPunten(r.entries[id].voorspelling,r.entries[id].gehaald):0); });
+      if(ri<p.rondes.length-1){ const w=p.winnaarId; const best=ids.reduce((m,id)=>(low?cum[id]<cum[m]:cum[id]>cum[m])?id:m,ids[0]);
+        const def=low?(cum[w]-cum[best]):(cum[best]-cum[w]); if(def>maxDef)maxDef=def; } });
+    if(maxDef>0 && (!comeback||maxDef>comeback.gap)) comeback={id:p.winnaarId,gap:Math.round(maxDef)};
+  }
+  let blunder=null;
+  for(const p of done){ p.spelerIds.forEach(id=>{ p.rondes.forEach(r=>{ let pain=0,txt='';
+    if(p.spel==='boerenbridge'){ const e=r.entries&&r.entries[id]; if(e){ const pt=bbPunten(e.voorspelling,e.gehaald); if(pt<0){pain=-pt;txt=`${pt} punten in één ronde`;} } }
+    else { const pt=toepenRondePunten(r,id); if(pt>0){pain=pt;txt=`${pt} strafpunten in één klap`;} }
+    if(pain>0 && (!blunder||pain>blunder.pain)) blunder={id,pain,txt}; }); }); }
+  let pot=null;
+  for(const p of done){ if(p.spel!=='toepen')continue; p.rondes.forEach(r=>{ if(r.inzet&&(!pot||r.inzet>pot.inzet))pot={inzet:r.inzet,winId:r.winnaarId}; }); }
+  let ziener=null; for(const id in agg){ if(!ziener||agg[id].bbExact>agg[ziener].bbExact)ziener=id; } if(ziener&&agg[ziener].bbExact===0)ziener=null;
+  let lantaarn=null; for(const id in agg){ if(!lantaarn||agg[id].lasts>agg[lantaarn].lasts)lantaarn=id; } if(lantaarn&&agg[lantaarn].lasts===0)lantaarn=null;
+  // bierkoning + "hoe meer bier hoe slechter"
+  let bierKoning=null, bierMax=0; const lastById={};
+  App.allSpelers.forEach(s=>{ const b=bierCount(s.id); if(b>bierMax){bierMax=b;bierKoning=s.id;} });
+  return {done,totalRondes,mvp,R,comeback,blunder,pot,ziener,lantaarn,agg,ratedIds,bierKoning,bierMax};
+}
+function wrappedSlides(){
+  const s=wrappedStats(), sl=[];
+  const P=(bg,fg,emoji,eyebrow,big,sub,detail,avId,podium)=>({bg,fg,emoji,eyebrow,big,sub,detail,avId,podium});
+  sl.push(P('linear-gradient(160deg,#1c463a,#0E251D)','#F6EFE0','🎬','Hop & Harten','Wrapped','',`<span class="cu" data-to="${s.done.length}">0</span> potje${s.done.length===1?'':'s'} · <span class="cu" data-to="${s.totalRondes}">0</span> rondes vol drama`));
+  if(s.mvp) sl.push(P('linear-gradient(160deg,#C9A24B,#9c7a2f)','#241c07','👑','Speler van de vakantie',naamVan(s.mvp),`rating <span class="cu" data-to="${Math.round(s.R[s.mvp])}">0</span>`,'De onbetwiste grootmeester.',s.mvp));
+  if(s.comeback) sl.push(P('linear-gradient(160deg,#5c9a6f,#3f7a5f)','#0E251D','🔥','Grootste comeback',naamVan(s.comeback.id),`<span class="cu" data-to="${s.comeback.gap}">0</span> punten goedgemaakt`,'Van kansloos naar winnaar.',s.comeback.id));
+  if(s.blunder) sl.push(P('linear-gradient(160deg,#B23A34,#7d2823)','#F6EFE0','💀','Pijnlijkste ronde',naamVan(s.blunder.id),s.blunder.txt,'Au. Dat doet nog steeds pijn.',s.blunder.id));
+  if(s.pot&&s.pot.winId) sl.push(P('linear-gradient(160deg,#5f6a8f,#3c4568)','#F6EFE0','🎲','De grootste pot',`Inzet <span class="cu" data-to="${s.pot.inzet}">0</span>`,`gepakt door ${naamVan(s.pot.winId)}`,'Toeps op toeps op toeps.',s.pot.winId));
+  if(s.ziener) sl.push(P('linear-gradient(160deg,#8a4f6b,#5f3549)','#F6EFE0','🔮','Het Orakel',naamVan(s.ziener),`<span class="cu" data-to="${s.agg[s.ziener].bbExact}">0</span>× exact voorspeld`,'Zag de slagen aankomen.',s.ziener));
+  if(s.lantaarn) sl.push(P('linear-gradient(160deg,#a5733f,#6e4c28)','#F6EFE0','🐌','Rode Lantaarn',naamVan(s.lantaarn),`<span class="cu" data-to="${s.agg[s.lantaarn].lasts}">0</span>× laatste`,'Iemand moet het licht uitdoen.',s.lantaarn));
+  if(s.bierKoning && s.bierMax>0){ const slechtst = s.lantaarn===s.bierKoning; const top=bierTop(s.bierKoning);
+    sl.push(P('linear-gradient(160deg,#C9A24B,#7a5a1e)','#241c07','🍺','Bierkoning',naamVan(s.bierKoning),`<span class="cu" data-to="${s.bierMax}">0</span> speciaalbiertjes`, (top?`Favoriet: ${top.type} (${top.n}×). `:'') + (slechtst?'Toeval? Meeste bier én meeste laatste plekken. 🤔':'Hoe meer bier, hoe … creatiever het spel.'),s.bierKoning)); }
+  if(s.ratedIds.length){ const top=s.ratedIds.slice(0,3).map(id=>({id,r:Math.round(s.R[id])}));
+    sl.push(P('linear-gradient(160deg,#1c463a,#0E251D)','#F6EFE0','🏆','Eindstand','Het podium','','Op rating — tot de volgende vakantie.',null,top)); }
+  return sl;
+}
+function renderWrapped(){
+  const slides=wrappedSlides();
+  if(slides.length<=1){ el.innerHTML=`<h2 class="view-title">Wrapped</h2><div class="empty"><div class="big">🎬</div>Speel eerst een paar potjes.<br>Dan maak ik er een samenvatting van.</div>`; return; }
+  let i=Math.min(App.wrappedIdx||0, slides.length-1); App.wrappedIdx=i; const sl=slides[i];
+  let inner='';
+  if(sl.podium){ const heights={0:120,1:92,2:70}, medal=['🥇','🥈','🥉'], order=[1,0,2];
+    inner=`<div class="wrap-podium">`+order.filter(k=>sl.podium[k]).map(k=>{ const p=sl.podium[k];
+      return `<div class="col">${avatarHTML(p.id,'lg')}<div class="bar" style="--h:${heights[k]}px">${p.r}</div><div class="cn">${medal[k]} ${naamVan(p.id)}</div></div>`; }).join('')+`</div>`; }
+  else if(sl.avId){ inner=`<div class="wav">${avatarHTML(sl.avId,'lg')}</div>`; }
+  el.innerHTML=`<div class="wrap-dots">`+slides.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')+`</div>
+    <div class="wrap-slide" data-act="wrapNext" style="background:${sl.bg};color:${sl.fg}">
+      <div class="wemoji-wrap"><div class="wemoji">${sl.emoji}</div></div>
+      <div class="weyebrow">${sl.eyebrow}</div>
+      <div class="wbig">${sl.big}</div>
+      ${sl.sub?`<div class="wsub">${sl.sub}</div>`:''}
+      ${inner}
+      ${sl.detail?`<div class="wdetail">${sl.detail}</div>`:''}
+    </div>
+    <div class="wrap-tap">${i<slides.length-1?'tik om verder te gaan':'dat was het'}</div>
+    <div class="btn-row">
+      ${i>0?`<button class="btn ghost" data-act="wrapPrev">Terug</button>`:''}
+      ${i<slides.length-1?`<button class="btn brass" data-act="wrapNext">Volgende</button>`:`<button class="btn brass" data-nav="home">Klaar</button>`}
+    </div>`;
+  animateCounts(el);
+  if(i===slides.length-1) confetti();
+}
+function animateCounts(root){
+  (root||document).querySelectorAll('.cu').forEach(elm=>{
+    const to=parseInt(elm.dataset.to)||0; const dur=800, start=(performance&&performance.now?performance.now():Date.now());
+    const tick=(now)=>{ const t=Math.min(1,((now||Date.now())-start)/dur); const e=1-Math.pow(1-t,3);
+      elm.textContent=Math.round(to*e); if(t<1) requestAnimationFrame(tick); else elm.textContent=to; };
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ---- Deler-rad (physics wheel) ---- */
+const RAD_PROMPTS=['Wie deelt?','Wie haalt bier?','Wie schudt?'];
+function promptVerb(){ const p=App.radPrompt; return p==='Wie haalt bier?'?'haalt bier!':p==='Wie schudt?'?'schudt!':'deelt!'; }
+let audioCtx=null;
+function ensureAudio(){ try{ if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }catch(e){} }
+function tick(){ if(!audioCtx)return; try{ const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type='square'; o.frequency.value=880; g.gain.setValueAtTime(0.05,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.045);
+  o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.05); }catch(e){} }
+function dingWin(){ if(!audioCtx)return; try{ const t=audioCtx.currentTime; [[0,660],[0.12,880],[0.24,1046]].forEach(([d,f])=>{ const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type='triangle'; o.frequency.value=f; g.gain.setValueAtTime(0.12,t+d); g.gain.exponentialRampToValueAtTime(0.0001,t+d+0.28);
+  o.connect(g); g.connect(audioCtx.destination); o.start(t+d); o.stop(t+d+0.3); }); }catch(e){} }
+let wheelCtx=null;
+function wheelColors(i){ const c=['#C4623B','#4f8a4f','#5f6a8f','#C9A24B','#8a4f6b','#3f7a8a','#a5733f','#B23A34','#3f7a5f','#d87a99','#5c9a6f','#7a6a8a']; return c[i%c.length]; }
+function setupWheel(players){ const cv=document.getElementById('wheel'); if(!cv)return; wheelCtx=cv.getContext('2d');
+  App.wheel={angle:App.wheel?App.wheel.angle:0, players, spinning:false}; drawWheel(); }
+function drawWheel(){ if(!wheelCtx)return; const ctx=wheelCtx, players=App.wheel.players, n=players.length, size=600, R=size/2, ang=App.wheel.angle, seg=2*Math.PI/n;
+  ctx.clearRect(0,0,size,size);
+  for(let i=0;i<n;i++){ const a0=ang+i*seg, a1=a0+seg;
+    ctx.beginPath(); ctx.moveTo(R,R); ctx.arc(R,R,R-6,a0,a1); ctx.closePath();
+    ctx.fillStyle=wheelColors(i); ctx.fill(); ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=2; ctx.stroke();
+    ctx.save(); ctx.translate(R,R); ctx.rotate(a0+seg/2); ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='bold 30px Inter, sans-serif';
+    const nm=players[i].naam; ctx.fillText(nm.length>10?nm.slice(0,9)+'…':nm, R-26, 11); ctx.restore(); }
+  ctx.beginPath(); ctx.arc(R,R,R-5,0,2*Math.PI); ctx.strokeStyle='#241c07'; ctx.lineWidth=8; ctx.stroke(); }
+function wheelWinner(){ const n=App.wheel.players.length, seg=2*Math.PI/n; let rel=(-Math.PI/2-App.wheel.angle)%(2*Math.PI); if(rel<0)rel+=2*Math.PI; return Math.floor(rel/seg)%n; }
+function kickSound(){ if(!audioCtx)return; try{ const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type='sawtooth'; o.frequency.setValueAtTime(280,t); o.frequency.exponentialRampToValueAtTime(720,t+0.13);
+  g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.17);
+  o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.18); }catch(e){} }
+function spinWheel(){ if(!App.wheel||App.wheel.spinning)return; App.wheel.spinning=true;
+  const res=document.getElementById('wheelRes'), btn=document.getElementById('spinBtn'); if(btn)btn.disabled=true; if(res)res.textContent='…';
+  ensureAudio();
+  let vel=0.30+Math.random()*0.10; const friction=0.975, reviveAt=0.038, minVel=0.006;
+  let kicks = 1 + (Math.random()<0.6?1:0); // 1 of 2 onverwachte extra zetten
+  let lastSeg=wheelWinner();
+  const step=()=>{ App.wheel.angle=(App.wheel.angle+vel)%(2*Math.PI); vel*=friction;
+    const cur=wheelWinner(); if(cur!==lastSeg){ tick(); lastSeg=cur; } drawWheel();
+    if(vel<=reviveAt && kicks>0){ vel += 0.14 + Math.random()*0.10; kicks--; kickSound(); } // fakeout: versnelt weer
+    if(vel>minVel){ App.wheelRAF=requestAnimationFrame(step); }
+    else { App.wheel.spinning=false; const w=App.wheel.players[wheelWinner()];
+      if(res)res.innerHTML=`<b>${w.naam}</b> ${promptVerb()}`; if(btn)btn.disabled=false; dingWin(); confetti(); } };
+  App.wheelRAF=requestAnimationFrame(step);
+}
+function renderRad(){
+  const players=App.spelers;
+  if(players.length<2){ el.innerHTML=`<h2 class="view-title">Deler-rad</h2><div class="empty"><div class="big">🎡</div>Voeg minstens 2 spelers toe onder “Spelers”.</div>
+    <div class="btn-row"><button class="btn ghost" data-nav="home">Terug</button></div>`; return; }
+  const prompt=App.radPrompt;
+  el.innerHTML=`<h2 class="view-title">Deler-rad</h2>
+    <div class="prompt-seg">`+RAD_PROMPTS.map(p=>`<button class="${p===prompt?'on':''}" data-act="radPrompt" data-p="${p}">${p}</button>`).join('')+`</div>
+    <div class="wheel-wrap">
+      <div class="wheel-stage"><div class="wheel-ptr">🔻</div><canvas id="wheel" width="600" height="600"></canvas><div class="wheel-center">🎯</div></div>
+      <div class="wheel-result" id="wheelRes">${prompt}</div>
+      <button class="btn brass" data-act="spin" id="spinBtn" style="max-width:220px">Draai het rad</button>
+    </div>`;
+  setupWheel(players);
+}
+
+/* ---- LEADERBOARD ---- */
+function renderLeaderboard(){
+  const tab=App.scoreTab||'winst';
+  let html=`<h2 class="view-title">Scores</h2>
+    <div class="seg">
+      <button class="seg-b ${tab==='winst'?'on':''}" data-act="scoreTab" data-tab="winst">Winst</button>
+      <button class="seg-b ${tab==='rating'?'on':''}" data-act="scoreTab" data-tab="rating">Rating</button>
+      <button class="seg-b ${tab==='prestaties'?'on':''}" data-act="scoreTab" data-tab="prestaties">Badges</button>
+      <button class="seg-b ${tab==='rivalen'?'on':''}" data-act="scoreTab" data-tab="rivalen">Rivalen</button>
+    </div>`;
+  html += tab==='winst' ? winstTab() : tab==='rating' ? ratingTab() : tab==='prestaties' ? prestatiesTab() : rivalenTab();
+  el.innerHTML=html;
+}
+function rivalenTab(){
+  const list=rivalries();
+  if(!list.length) return `<div class="empty"><div class="big">⚔️</div>Nog geen rivaliteiten.<br>Speel meer potjes met dezelfde spelers.</div>`;
+  let html=`<div class="muted">Onderlinge duels — head-to-head over gedeelde potjes.</div>`;
+  list.slice(0,6).forEach(o=>{
+    const total=o.aWins+o.bWins+o.ties||1;
+    const aw=Math.round(o.aWins/total*100), bw=Math.round(o.bWins/total*100), tw=Math.max(0,100-aw-bw);
+    html+=`<div class="riv-card" style="margin-top:12px">
+      <div class="riv-top">
+        <div class="riv-side">${avatarHTML(o.a,'sm')}<span class="nm">${naamVan(o.a)}</span></div>
+        <div class="riv-score">${o.aWins}–${o.bWins}</div>
+        <div class="riv-side r"><span class="nm">${naamVan(o.b)}</span>${avatarHTML(o.b,'sm')}</div>
+      </div>
+      <div class="riv-bar"><i style="width:${aw}%;background:var(--brass)"></i><i style="width:${tw}%;background:#b7ab90"></i><i style="width:${bw}%;background:var(--rood)"></i></div>
+      <div class="riv-comment">${rivComment(o)}</div>
+    </div>`;
+  });
+  return html;
+}
+function winstTab(){
+  const done=App.potjes.filter(p=>p.status==='afgerond');
+  const tally={};
+  for(const p of done){ if(!p.winnaarId) continue; tally[p.winnaarId]=tally[p.winnaarId]||{toepen:0,boerenbridge:0};
+    tally[p.winnaarId][p.spel]=(tally[p.winnaarId][p.spel]||0)+1; }
+  const rows=Object.entries(tally).map(([id,t])=>({id,...t,totaal:(t.toepen||0)+(t.boerenbridge||0)}));
+  rows.sort((a,b)=> b.totaal-a.totaal || b.boerenbridge-a.boerenbridge);
+  let html=`<div class="muted">Gewonnen potjes per speler.</div>`;
+  if(!rows.length) return html+`<div class="empty"><div class="big">♛</div>Nog geen afgeronde potjes.<br>Speel een spel om de eerste winst te noteren.</div>`;
+  const agg=playerAgg();
+  html+=`<div class="p-list" style="margin-top:14px">`;
+  rows.forEach((r,i)=>{ const st=agg[r.id]?agg[r.id].curWinStreak:0;
+    const flame=st>=2?` <span title="${st} op rij" style="font-size:13px">🔥${st}</span>`:'';
+    html+=`<div class="lb-item ${i===0?'top':''}">
+    <div class="medal">${i===0?'♛':'#'+(i+1)}</div>
+    <div class="lb-cell">${avatarHTML(r.id)}<div><div class="nm">${naamVan(r.id)}${flame}</div>
+      <div class="split">♥ ${r.toepen||0} toepen · ♠ ${r.boerenbridge||0} boerenbridge</div></div></div>
+    <div class="wins">${r.totaal}<small>gewonnen</small></div></div>`; });
+  html+=`</div><div class="btn-row"><button class="btn ghost" data-act="shareStand">📤 Deel de stand</button></div>
+    <div class="divider"></div><div class="mono" style="color:var(--bone-dim);font-size:12px;text-align:center">${done.length} potje${done.length===1?'':'s'} gespeeld in totaal</div>`;
+  return html;
+}
+async function shareStand(){
+  const done=App.potjes.filter(p=>p.status==='afgerond');
+  const tally={};
+  for(const p of done){ if(!p.winnaarId) continue; tally[p.winnaarId]=(tally[p.winnaarId]||0)+1; }
+  const agg=playerAgg();
+  const rows=Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+  const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+  let txt=`🃏 Hop & Harten — de stand\n`;
+  rows.forEach(([id,w],i)=>{ const st=agg[id]?agg[id].curWinStreak:0;
+    txt+=`${medal(i)} ${naamVan(id)} — ${w} gewonnen${st>=2?` 🔥${st} op rij`:''}\n`; });
+  txt+=`(${done.length} potjes gespeeld)`;
+  try{
+    if(navigator.share){ await navigator.share({text:txt}); }
+    else { await navigator.clipboard.writeText(txt); toast('Stand gekopieerd — plak \'m in de groepsapp 📋'); }
+  }catch(e){ /* geannuleerd */ }
+}
+function ratingChart(hist,ids){
+  let minR=Infinity,maxR=-Infinity,maxI=0;
+  ids.forEach(id=>hist[id].forEach(h=>{minR=Math.min(minR,h.r);maxR=Math.max(maxR,h.r);maxI=Math.max(maxI,h.i);}));
+  if(maxI===0||!isFinite(minR)) return '';
+  minR-=15;maxR+=15; const W=320,H=140,pad=10;
+  const x=i=>pad+(W-2*pad)*(maxI?i/maxI:0);
+  const y=r=>pad+(H-2*pad)*(1-(r-minR)/((maxR-minR)||1));
+  const cols=['#C9A24B','#B23A34','#5c9a6f','#5f6a8f','#d87a99','#a5733f','#3f7a8a','#8a4f6b'];
+  let paths='';
+  ids.forEach((id,idx)=>{ const h=hist[id]; if(h.length<2)return; const c=cols[idx%cols.length];
+    const d=h.map((pt,k)=>`${k?'L':'M'}${x(pt.i).toFixed(1)} ${y(pt.r).toFixed(1)}`).join(' ');
+    paths+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const last=h[h.length-1]; paths+=`<circle cx="${x(last.i).toFixed(1)}" cy="${y(last.r).toFixed(1)}" r="3.2" fill="${c}"/>`; });
+  const leg=`<div class="chart-leg">`+ids.map((id,idx)=>`<span><i style="background:${cols[idx%cols.length]}"></i>${naamVan(id)}</span>`).join('')+`</div>`;
+  const base=(1000>=minR&&1000<=maxR)?`<line x1="${pad}" y1="${y(1000).toFixed(1)}" x2="${W-pad}" y2="${y(1000).toFixed(1)}" stroke="rgba(25,23,18,.18)" stroke-dasharray="3 3"/>`:'';
+  return `<div class="card"><div class="eyebrow">📈 Ratingverloop</div>
+    <svg viewBox="0 0 ${W} ${H}" class="rating-svg" preserveAspectRatio="none">${base}${paths}</svg>${leg}</div>`;
+}
+function ratingTab(){
+  const {R,hist,games}=computeRatings(); const titles=computeTitles();
+  const ids=Object.keys(R).filter(id=>games[id]>=1).sort((a,b)=>R[b]-R[a]);
+  if(!ids.length) return `<div class="empty"><div class="big">📈</div>Nog geen rating.<br>Speel een paar potjes om te ranken.</div>`;
+  let html=ratingChart(hist,ids);
+  html+=`<div class="p-list" style="margin-top:12px">`;
+  ids.forEach((id,i)=>{ const t=(titles[id]||[]).map(x=>`<span class="title-chip">${x.e} ${x.t}</span>`).join('');
+    html+=`<div class="lb-item ${i===0?'top':''}"><div class="medal">${i===0?'👑':'#'+(i+1)}</div>
+      <div class="lb-cell">${avatarHTML(id)}<div><div class="nm">${naamVan(id)}</div>
+        <div class="title-wrap">${t||'<span class="muted2">nog geen titel</span>'}</div></div></div>
+      <div class="wins">${Math.round(R[id])}<small>rating · ${games[id]}p</small></div></div>`; });
+  html+=`</div><div class="hint">Rating start op 1000 en beweegt met je eindklassering per potje (Elo, verdeeld over al je tegenstanders). Titels gaan naar de koploper per categorie.</div>`;
+  return html;
+}
+function prestatiesTab(){
+  if(!App.spelers.length) return `<div class="empty"><div class="big">🏅</div>Nog geen spelers.</div>`;
+  const {out}=computeAchievements();
+  let html=`<div class="muted">Ontgrendelde prestaties per speler.</div><div class="p-list" style="margin-top:12px">`;
+  App.spelers.forEach(s=>{ const earned=out[s.id]||[];
+    const chips=earned.length? earned.map(aid=>{const a=ACHS.find(x=>x.id===aid);return `<span class="badge" title="${a.desc}">${a.e} ${a.naam}</span>`;}).join('')
+      : `<span class="muted2">nog geen prestaties — ga los</span>`;
+    html+=`<div class="ach-card"><div class="lb-cell">${avatarHTML(s.id,'sm')}<div class="nm">${s.naam}</div><span class="ach-count mono">${earned.length}/${ACHS.length}</span></div>
+      <div class="badges">${chips}</div></div>`; });
+  html+=`</div><div class="divider"></div><div class="eyebrow">Alle prestaties</div><div class="cat-list">`;
+  ACHS.forEach(a=>{ html+=`<div class="cat-item"><span class="ce">${a.e}</span><div><div class="nm">${a.naam}</div><div class="cd">${a.desc}</div></div></div>`; });
+  return html+`</div>`;
+}
+
+/* ---- WINST ---- */
+function renderWinst(){
+  const w=App.lastWinner||{}; const g=GAMES[w.spel]||{};
+  let ach='';
+  if(w.newAch&&w.newAch.length){
+    ach=`<div class="card" style="margin-top:12px"><div class="eyebrow">✨ Nieuw ontgrendeld</div><div class="badges" style="margin-top:10px">`;
+    w.newAch.forEach(x=>{ const a=ACHS.find(y=>y.id===x.aid); if(a) ach+=`<span class="badge big">${a.e} ${a.naam} · ${naamVan(x.id)}</span>`; });
+    ach+=`</div></div>`;
+  }
+  let boete='';
+  if(w.loserId && w.boete){ boete=`<div class="boete-card"><div class="bc-eye">🍺 Boete voor de verliezer</div><div class="bc-who">${naamVan(w.loserId)}</div><div class="bc-rule">${w.boete}</div></div>`; }
+  el.innerHTML=`<div class="card" style="margin-top:20px"><div class="win-banner">
+    <div class="laurel">🏆</div>${w.id?avatarHTML(w.id,'lg'):''}
+    <div class="eyebrow" style="margin-top:8px">${g.suit||''} ${g.naam||''} · winnaar</div>
+    <div class="who">${w.naam||'—'}</div><div class="cap">${w.detail||''}</div></div>
+    <div class="btn-row"><button class="btn ghost dark" data-nav="leaderboard">Naar scores</button>
+    <button class="btn brass" data-nav="home">Nieuw potje</button></div></div>`+boete+ach;
+  confetti(); if(w.newAch&&w.newAch.length) setTimeout(confetti,350);
+}
+
+/* ---- UITLEG ---- */
+function renderUitleg(){
+  el.innerHTML=`<h2 class="view-title">Speluitleg</h2>
+  <div class="card rules">
+    <div class="eyebrow">♥ Toepen</div>
+    <p>Trick-taking spel met 32 kaarten (7 t/m aas). Meestal 4 spelers, ieder 4 kaarten. Alleen de <b>laatste slag</b> telt. Volgorde hoog→laag: 10, 9, 8, 7, aas, heer, vrouw, boer.</p>
+    <h3>Doel</h3><p>Zo min mogelijk strafpunten. Wie de laatste slag wint krijgt 0; de rest krijgt de inzet.</p>
+    <h3>Toepen (inzet verhogen)</h3><p>Kloppen op tafel = de inzet +1. Anderen gaan mee of passen; wie past krijgt de inzet van dat moment.</p>
+    <h3>Jullie regels</h3><ul>
+      <li><span class="pill">dood bij 15</span> Wie 15 bereikt is af; laatste overgeblevene wint.</li>
+      <li><span class="pill">vuile was</span> Vier plaatjes (of 3 plaatjes + 7) → nieuwe hand aanvragen.</li>
+      <li><span class="pill">boer laatste slag = straf ×2</span> Wordt de laatste slag gewonnen met een boer → alle verliezers krijgen hun strafpunten dubbel.</li></ul>
+    <h3>In de app</h3><p>Per ronde: kies winnaar, zet inzet (1 + aantal toepen), pas gepaste spelers aan, vink “met boer” aan om de straf van de verliezers te verdubbelen. Stand en dood-grens worden bijgehouden.</p>
+  </div>
+  <div class="card rules">
+    <div class="eyebrow">♠ Boerenbridge</div>
+    <p>Voorspel-spel. Elke ronde een wisselend aantal kaarten (schema 1 → piek → 1). Hoogste bieder bepaalt de troef; kleur bekennen verplicht.</p>
+    <h3>Doel</h3><p>Voorspel exact hoeveel slagen je haalt. Juist → punten, ernaast → minpunten.</p>
+    <h3>Biedregel (deler)</h3><p>De voorspellingen samen mogen <b>niet gelijk</b> zijn aan het aantal kaarten. De laatste bieder (deler) is dus beperkt — de app laat zien welk getal niet mag en blokkeert opslaan als het totaal tóch klopt.</p>
+    <h3>Jullie puntentelling (10 + 2)</h3><ul>
+      <li><span class="pill">juist</span> 10 + 2 per gehaalde slag (voorspeld 3 & gehaald 3 → 16; 0 & 0 → 10)</li>
+      <li><span class="pill">fout</span> −2 per slag verschil (voorspeld 2, gehaald 4 → −4)</li></ul>
+    <h3>In de app</h3><p>Voorspelling + gehaald per speler; punten live berekend. Gehaalde slagen samen moeten gelijk zijn aan de kaarten. Aan het eind van het schema wint het hoogste totaal.</p>
+  </div>
+  <div class="card rules">
+    <div class="eyebrow">✨ Extra's</div>
+    <h3>📈 Rating &amp; titels</h3><p>Elke speler heeft een Elo-rating (start 1000) die per potje meebeweegt met je eindklassering, verdeeld over al je tegenstanders. Titels als <b>Grootmeester</b>, <b>Het Orakel</b> en <b>Kanonnenvoer</b> gaan naar de koploper per categorie. Zie tab <b>Scores → Rating</b>.</p>
+    <h3>🏅 Prestaties</h3><p>Verborgen badges die je ontgrendelt door te spelen (<b>Nul-Held</b>, <b>Kamikaze</b>, <b>Comeback Kid</b>…). Bij het afronden van een potje knalt de confetti als er iets nieuws bij komt. Zie tab <b>Scores → Prestaties</b>.</p>
+    <h3>🎰 Kans-o-meter</h3><p>Tijdens een potje simuleert de app 2000 keer de resterende rondes en toont per speler de live winkans. Zakt iemand onder de 5%, dan mag-ie de kaarten alvast opruimen.</p>
+  </div>
+  <div class="hint" style="color:var(--bone-dim);padding:0 4px">Bron: Nederlandse spelregels, samengevat voor jullie afgesproken varianten.</div>`;
+}
+
+/* ============ ACTIONS ============ */
+document.addEventListener('click', async (e)=>{
+  const nav=e.target.closest('[data-nav]'); if(nav){ go(nav.dataset.nav); return; }
+  const gTile=e.target.closest('[data-game]'); if(gTile&&!gTile.disabled){ startNieuw(gTile.dataset.game); return; }
+  const a=e.target.closest('[data-act]'); if(!a) return;
+  const act=a.dataset.act, id=a.dataset.id;
+  switch(act){
+    case 'switchMe': idState.mode='list'; return showIdentity(true);
+    case 'idPick': return idPick(id);
+    case 'idNewMode': idState.mode='create'; return renderIdentity(true);
+    case 'idBack': idState.mode='list'; return renderIdentity(true);
+    case 'idClose': idState.mode='list'; return hideIdentity();
+    case 'idCreate': return idCreate();
+    case 'idTomGo': return idTomGo();
+    case 'rbCapGo': return rbCapGo();
+    case 'rbCapSkip': return rbCapSkip();
+    case 'openSettings': return go('settings');
+    case 'toggleRb': sset('rb_on', rbOn()?'0':'1'); render(); return;
+    case 'rbAssign': { const s=document.getElementById('rbAssignSel'); if(s&&s.value){ const nm=s.options[s.selectedIndex].text; await assignRb(s.value); await refresh(); toast(nm+' krijgt bij het volgende potje een verrassing 😈'); render(); } return; }
+    case 'rbClearPending': await clearPending(id); await refresh(); render(); return;
+    case 'rbPreview': return previewRb(a.dataset.type);
+    case 'previewNew': return previewNew(a.dataset.type);
+    case 'prevClose': return closePrev();
+    case 'delPotje': { if(!isTom(App.me)) return; const p=App.potjes.find(x=>x.id===id); const g=p?GAMES[p.spel]:null;
+      if(await confirmDialog(`Dit ${g?g.naam:'potje'} definitief verwijderen? Het telt dan nergens meer mee.`,'Verwijderen')){
+        await Store.deletePotje(id); if(App.activePotje&&App.activePotje.id===id){ App.activePotje=null; App.draft=null; }
+        await refresh(); render(); toast('Potje verwijderd'); } return; }
+    case 'addP': return addSpeler();
+    case 'delP': return delSpeler(id);
+    case 'pickAvatar': App.pickerFor = App.pickerFor===id?null:id; return render();
+    case 'setAvatar': await Store.setAvatar(id, a.dataset.key||null); App.pickerFor=null; await refresh(); render(); return;
+    case 'selAll': return selAll();
+    case 'togP': return toggleSel(id);
+    case 'peak': return changePeak(parseInt(a.dataset.d));
+    case 'cancelNew': App.draft=null; return go('home');
+    case 'startPotje': return startPotje();
+    case 'resume': return go('spel');
+    case 'openReorder': App.reorder=true; return render();
+    case 'closeReorder': App.reorder=false; return render();
+    case 'moveUp': return move(id,-1);
+    case 'moveDown': return move(id,1);
+    case 'inzet': return changeInzet(parseInt(a.dataset.d));
+    case 'strafPlus': return bumpStraf(id, 1);
+    case 'strafMinus': return bumpStraf(id, -1);
+    case 'cancelGame': return cancelGame();
+    case 'pickWin': return pickWin(id);
+    case 'pickDealer': App.draft.dealerId=id; return render();
+    case 'toggleBoer': App.draft.metBoer=!App.draft.metBoer; return render();
+    case 'scoreTab': App.scoreTab=a.dataset.tab; return render();
+    case 'shareStand': return shareStand();
+    case 'openRad': return go('rad');
+    case 'handicap': return showHandicap();
+    case 'hrNew': { const s=document.getElementById('hcWho'); return showHandicap(s&&s.value); }
+    case 'hrClose': App.hcRoll=null; return closeHandicap();
+    case 'hcAssign': return doAssignHandicap();
+    case 'hcClear': clearHandicap(id); render(); toast('Handicap opgeheven'); return;
+    case 'hcClearAll': clearAllHandicaps(); render(); toast('Alle handicaps opgeheven'); return;
+    case 'toggleHc': sset('hc_on', hcOn()?'0':'1'); render(); return;
+    case 'hcFreq': sset('hc_freq', a.dataset.n); render(); toast('Nu 1 op de '+a.dataset.n+' potjes'); return;
+    case 'hcAllow': toggleHcAllowed(id); render(); return;
+    case 'hcAssignPick': { const s=document.getElementById('hcAssignSel'); if(s&&s.value){ showHandicap(s.value); } return; }
+    case 'openBier': return go('bier');
+    case 'bierLog': if(App.me){ addBier(App.me, a.dataset.type); toast('Proost! 🍻 '+a.dataset.type+' ('+bierCount(App.me)+')'); render(); } return;
+    case 'bierMinus': if(App.me){ removeBier(App.me, a.dataset.type); render(); } return;
+    case 'bierAddType': return doAddBierType();
+    case 'radPrompt': App.radPrompt=a.dataset.p; { const res=document.getElementById('wheelRes'); if(res&&!(App.wheel&&App.wheel.spinning))res.textContent=App.radPrompt; }
+      document.querySelectorAll('.prompt-seg button').forEach(b=>b.classList.toggle('on',b.dataset.p===App.radPrompt)); return;
+    case 'spin': return spinWheel();
+    case 'openWrapped': if(!wrappedIsUnlocked()) return; App.wrappedIdx=0; return go('wrapped');
+    case 'toggleWrapped': return toggleWrapped();
+    case 'keepAlive': keepAlivePing(); render(); toast('Database gepingd — weer 7 dagen 🔌'); return;
+    case 'wrapNext': App.wrappedIdx=Math.min((App.wrappedIdx||0)+1, wrappedSlides().length-1); return render();
+    case 'wrapPrev': App.wrappedIdx=Math.max((App.wrappedIdx||0)-1,0); return render();
+    case 'spelTab': App.spelTab=a.dataset.tab; return render();
+    case 'saveRonde': return saveRonde();
+    case 'undoRonde': return undoRonde();
+    case 'finish': return finishPotje(false);
+  }
+});
+
+async function addSpeler(){
+  const inp=document.getElementById('newP'); if(!inp) return;
+  const naam=cleanText(inp.value,24); if(!naam) return;
+  if(App.spelers.some(s=>s.naam.toLowerCase()===naam.toLowerCase())){ toast('Die naam bestaat al'); return; }
+  await Store.addSpeler(naam); await refresh(); render(); toast(naam+' toegevoegd');
+}
+async function delSpeler(id){
+  if(!(await confirmDialog(`${naamVan(id)} verwijderen uit de spelerslijst?\n(Gewonnen potjes blijven in het leaderboard.)`, 'Verwijderen'))) return;
+  await Store.archiveSpeler(id); await refresh(); render();
+}
+function startNieuw(spel){ App.draft={spel, spelerIds:[], peak:defPeak(2)}; go('nieuw'); }
+function selAll(){ const all=App.spelers.map(s=>s.id);
+  App.draft.spelerIds = (App.draft.spelerIds.length===all.length) ? [] : all;
+  if(App.draft.spel==='boerenbridge') App.draft.peak=Math.min(App.draft.peak, maxPeak(Math.max(2,App.draft.spelerIds.length)));
+  render(); }
+function toggleSel(id){ const s=App.draft.spelerIds; const i=s.indexOf(id);
+  if(i>=0)s.splice(i,1); else s.push(id);
+  if(App.draft.spel==='boerenbridge') App.draft.peak=Math.min(App.draft.peak, maxPeak(Math.max(2,s.length)));
+  render(); }
+function changePeak(d){ const n=Math.max(2,App.draft.spelerIds.length);
+  App.draft.peak=Math.max(1, Math.min(maxPeak(n), App.draft.peak+d)); render(); }
+async function startPotje(){
+  const d=App.draft;
+  const p={ id:uid(), spel:d.spel, status:'bezig', spelerIds:[...d.spelerIds], volgorde:[...d.spelerIds],
+    plan: d.spel==='boerenbridge'?bbPlan(Math.min(d.peak,maxPeak(d.spelerIds.length))):[],
+    rondes:[], winnaarId:null, gestart:new Date().toISOString(), afgerond:null };
+  await Store.savePotje(p); App.draft=null; await refresh(); armCurseForPotje(p);
+  const hc=maybeAutoHandicap(p);
+  go('spel');
+  if(hc) setTimeout(()=>toast('🎲 Handicap voor '+naamVan(hc.id)+'!'),600);
+}
+async function move(id,dir){
+  const p=App.activePotje; const vo=inputOrder(p); const i=vo.indexOf(id); const j=i+dir;
+  if(j<0||j>=vo.length) return; [vo[i],vo[j]]=[vo[j],vo[i]];
+  p.volgorde=vo; await Store.savePotje(p); await refresh(); render();
+}
+function changeInzet(d){ App.draft.inzet=Math.max(1,App.draft.inzet+d);  const v=document.getElementById('inzetVal'); if(v)v.textContent=App.draft.inzet;
+  el.querySelectorAll('input[data-straf]').forEach(inp=>{ const id=inp.dataset.straf;
+    if(App.draft.winnaarId!==id && App.draft.strafpunten[id]===undefined) inp.value=App.draft.inzet; }); }
+function bumpStraf(id,d){
+  if(App.draft.winnaarId===id) return;
+  const cur = (App.draft.strafpunten[id] ?? App.draft.inzet);
+  const nv = Math.max(0,(Number(cur)||0)+d);
+  App.draft.strafpunten[id]=nv;
+  const inp=el.querySelector(`input[data-straf="${id}"]`); if(inp) inp.value=nv;
+}
+async function cancelGame(){
+  const p=App.activePotje; if(!p) return;
+  if(!(await confirmDialog('Weet je het zeker? Dit potje wordt verwijderd en telt niet mee in de scores.','Ja, annuleren'))) return;
+  await Store.deletePotje(p.id); App.draft=null; App.activePotje=null; App.curse=null; el&&el.classList&&el.classList.remove('rb-tilt'); await refresh(); go('home'); toast('Potje geannuleerd');
+}
+function pickWin(id){ if(ragebaitWinnerBlock(id)) return; App.draft.winnaarId=App.draft.winnaarId===id?null:id; render(); }
+
+async function saveRonde(){
+  if(ragebaitSaveIntercept()) return;
+  const p=App.activePotje, d=App.draft, order=inputOrder(p);
+  if(p.spel==='toepen'){
+    if(!d.winnaarId){ toast('Kies eerst de winnaar',true); return; }
+    el.querySelectorAll('input[data-straf]').forEach(inp=>{ d.strafpunten[inp.dataset.straf]=parseInt(inp.value)||0; });
+    const straf={...d.strafpunten};
+    delete straf[d.winnaarId];
+    if(d.metBoer) for(const k in straf) straf[k]=(Number(straf[k])||0)*2; // boer: verliezers ×2
+    const ronde={ winnaarId:d.winnaarId, inzet:d.inzet, metBoer:d.metBoer, strafpunten:straf };
+    p.rondes.push(ronde);
+  } else {
+    const cards=p.plan[p.rondes.length];
+    const missing=p.spelerIds.some(id=>{ const e=d.entries[id]; return e.voorspelling===''||e.gehaald===''; });
+    if(missing){ toast('Vul voor iedereen voorspelling én gehaald in',true); return; }
+    const sumBid=p.spelerIds.reduce((a,id)=>a+(Number(d.entries[id].voorspelling)||0),0);
+    const sumTrick=p.spelerIds.reduce((a,id)=>a+(Number(d.entries[id].gehaald)||0),0);
+    if(sumBid===cards){
+      toast(`Voorspellingen samen mogen niet ${cards} zijn. ${naamVan(d.dealerId)} (deler) moet anders bieden.`,true); return; }
+    if(sumTrick!==cards){ toast(`Gehaalde slagen samen moeten ${cards} zijn (nu ${sumTrick}).`,true); return; }
+    const entries={}; p.spelerIds.forEach(id=>{ entries[id]={voorspelling:Number(d.entries[id].voorspelling)||0, gehaald:Number(d.entries[id].gehaald)||0}; });
+    p.rondes.push({ entries, dealerId:d.dealerId });
+  }
+  App.draft=null; await Store.savePotje(p); await refresh();
+  if(p.spel==='toepen'){ const alive=p.spelerIds.filter(id=>!isDood(p,id));
+    if(alive.length<=1 && p.spelerIds.length>1) return finishPotje(true); }
+  if(p.spel==='boerenbridge' && p.rondes.length>=p.plan.length) return finishPotje(true);
+  render();
+  const flair = (Math.random()<0.15) ? personaChaos(App.me,'save') : null;
+  toast(flair || ('Ronde '+p.rondes.length+' opgeslagen'));
+}
+async function undoRonde(){ const p=App.activePotje; if(!p.rondes.length) return;
+  if(!(await confirmDialog('Laatste ronde wissen?','Wissen'))) return;
+  p.rondes.pop(); App.draft=null; await Store.savePotje(p); await refresh(); render(); }
+async function finishPotje(auto){
+  const p=App.activePotje; const g=GAMES[p.spel];
+  if(!auto && !(await confirmDialog('Potje afronden en winnaar vastleggen?','Afronden'))) return;
+  const before=computeAchievements().out;
+  const rows=ordered(p); const winner=rows[0];
+  p.status='afgerond'; p.winnaarId=winner.id; p.afgerond=new Date().toISOString();
+  await Store.savePotje(p);
+  await refresh();
+  const after=computeAchievements().out;
+  const news=[];
+  for(const id of p.spelerIds){ const b=new Set(before[id]||[]); (after[id]||[]).forEach(aid=>{ if(!b.has(aid)) news.push({id,aid}); }); }
+  const loser=rows[rows.length-1];
+  App.lastWinner={ id:winner.id, naam:naamVan(winner.id), spel:p.spel,
+    detail: g.lowerIsBetter?`${winner.tot} strafpunten`:`${winner.tot} punten`, newAch:news,
+    loserId: (loser&&loser.id!==winner.id)?loser.id:null, boete: randomBoete() };
+  App.draft=null; App.curse=null; el&&el.classList&&el.classList.remove('rb-tilt');
+  // persona-flair voor de ingelogde speler die niet won
+  if(App.me && App.me!==winner.id){ const c=personaChaos(App.me,'loss'); if(c) setTimeout(()=>toast(c),1400); }
+  go('winst');
+}
+
+let toastT;
+function toast(msg,err){ const t=document.getElementById('toast'); t.textContent=msg;
+  t.className='toast show'+(err?' err':''); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
+
+function confirmDialog(msg, yes, no){
+  return new Promise(res=>{
+    const m=document.getElementById('modal');
+    document.getElementById('modalMsg').textContent=msg;
+    const yb=document.getElementById('modalYes'), nb=document.getElementById('modalNo');
+    yb.textContent=yes||'Oké'; nb.textContent=no||'Annuleren';
+    m.hidden=false;
+    const done=v=>{ m.hidden=true; yb.onclick=null; nb.onclick=null; m.onclick=null; res(v); };
+    yb.onclick=()=>done(true); nb.onclick=()=>done(false);
+    m.onclick=e=>{ if(e.target===m) done(false); };
+  });
+}
+
+/* ---- magisch woord (zachte botdrempel) ---- */
+function gateNorm(s){ return (s||'').toLowerCase().replace(/[^a-z]/g,'').replace(/c/g,'k'); }
+function gateGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function gateSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function initGate(){
+  const gate=document.getElementById('gate'); if(!gate) return;
+  const MAGIC='hokuspoker'; // "hocus pocus" voor pokeraars
+  if(gateGet('kv_gate_ok')==='1'){ gate.classList.add('hidden'); return; }
+  const form=document.getElementById('gateForm'), pw=document.getElementById('gatePw'),
+        err=document.getElementById('gateErr'), card=document.getElementById('gateCard');
+  if(!form || !pw) return;
+  setTimeout(()=>{ try{ pw.focus(); }catch(e){} }, 200);
+  form.addEventListener('submit', (e)=>{
+    if(e) e.preventDefault();
+    if(gateNorm(pw.value)===MAGIC){
+      gateSet('kv_gate_ok','1'); if(err) err.textContent='';
+      gate.style.transition='opacity .35s'; gate.style.opacity='0';
+      setTimeout(()=>{ gate.classList.add('hidden'); gate.style.opacity=''; maybeShowIdentity(); }, 360);
+    } else {
+      if(err) err.textContent='Dat is niet het magische woord…';
+      if(card){ card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
+      pw.value=''; try{ pw.focus(); }catch(e2){}
+    }
+  });
+}
+
+/* live sync bij wijzigingen van een ander toestel */
+let _syncT=null;
+function softSync(){ clearTimeout(_syncT); _syncT=setTimeout(async()=>{
+  try{ await loadSettings(); await refresh(); }catch(e){ return; }
+  updateMeBadge();
+  const typing = App.view==='spel' && (App.spelTab||'invoer')==='invoer' && !App.reorder;
+  if(!needIdentity() && !typing && !document.querySelector('.rbov')) render();
+},400); }
+
+/* ---- boot ---- */
+initGate();
+(async function(){ await Store.init(); await loadSettings(); await refresh(); App.me=gateGet('kv_me')||null; render(); updateMeBadge(); maybeShowIdentity(); Store.subscribeRealtime(softSync); keepAlivePing(); })();
+</script>
+</body>
+</html>
