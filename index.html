@@ -110,6 +110,10 @@ button{font-family:inherit;cursor:pointer}
 .meter.danger i{background:var(--rood)}
 
 .round-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px}
+.bb-dash{display:flex;gap:8px;margin-top:10px}
+.bb-dash-cell{flex:1;background:rgba(0,0,0,.05);border:1px solid var(--parch-line);border-radius:12px;padding:9px 8px;text-align:center;min-width:0}
+.bb-dash-k{font-size:10.5px;color:var(--ink-soft);font-weight:600;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bb-dash-v{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px;color:var(--ink);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .round-head .rn{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px;color:var(--ink)}
 .stepper{display:inline-flex;align-items:center;border:1px solid var(--parch-line);border-radius:var(--r-sm);overflow:hidden;background:#fff}
 .stepper button{width:40px;height:40px;border:0;background:transparent;font-size:20px;color:var(--ink);font-family:'Space Mono',monospace}
@@ -1147,9 +1151,15 @@ function renderSpel(){
   if(p.spel==='boerenbridge'){
     const cards=p.plan[p.rondes.length] ?? 0;
     const dealerId=App.draft.dealerId;
+    const openerId=bbOpener(order,dealerId);
     form+=`<div class="round-head"><span class="rn">Ronde ${rn} / ${p.plan.length}</span>
       <span class="mono" style="font-size:13px;color:var(--ink-soft)"><b style="font-size:16px;color:var(--ink)">${cards}</b> kaart${cards===1?'':'en'}</span></div>`;
-    form+=`<div class="mono" style="font-size:12px;color:var(--ink-soft);margin-top:2px">🂠 <b style="color:var(--ink)">${naamVan(dealerId)}</b> deelt · schuift elke ronde door</div>`;
+    form+=`<div class="bb-dash">
+      <div class="bb-dash-cell"><div class="bb-dash-k">🂠 Kaarten</div><div class="bb-dash-v">${cards}</div></div>
+      <div class="bb-dash-cell"><div class="bb-dash-k">🎴 Deler</div><div class="bb-dash-v">${naamVan(dealerId)}</div></div>
+      <div class="bb-dash-cell"><div class="bb-dash-k">▶️ Opent + troef</div><div class="bb-dash-v">${naamVan(openerId)}</div></div>
+    </div>`;
+    form+=`<div class="mono" style="font-size:11.5px;color:var(--ink-soft);margin-top:8px"><b style="color:var(--ink)">${naamVan(openerId)}</b> begint en bepaalt de troef · deler schuift elke ronde door</div>`;
     // progress dots
     form+=`<div class="progress">`;
     p.plan.forEach((c,i)=>{ const cls=i<p.rondes.length?'done':(i===p.rondes.length?'now':''); form+=`<i class="${cls}" title="${c}"></i>`; });
@@ -1163,8 +1173,8 @@ function renderSpel(){
       const pv=(e.voorspelling!==''&&e.gehaald!=='')?bbPunten(e.voorspelling,e.gehaald):null;
       form+=`<div class="prow bb ${isDealer?'dealer':''}">
         <div class="pnmcell">${avatarHTML(id,'sm')}<div class="pnm">${naamVan(id)}</div><button class="deal-chip ${isDealer?'on':''}" data-act="pickDealer" data-id="${id}">deelt</button></div>
-        <input class="num" type="number" min="0" inputmode="numeric" pattern="[0-9]*" data-bb="voorspelling" data-id="${id}" value="${e.voorspelling}">
-        <input class="num" type="number" min="0" inputmode="numeric" pattern="[0-9]*" data-bb="gehaald" data-id="${id}" value="${e.gehaald}">
+        <input class="num" type="number" min="0" inputmode="numeric" pattern="[0-9]*" enterkeyhint="next" data-bb="voorspelling" data-id="${id}" value="${e.voorspelling}">
+        <input class="num" type="number" min="0" inputmode="numeric" pattern="[0-9]*" enterkeyhint="next" data-bb="gehaald" data-id="${id}" value="${e.gehaald}">
         <div class="pts ${pv==null?'':(pv<0?'neg':'pos')}" data-pts="${id}">${pv==null?'–':(pv>0?'+'+pv:pv)}</div>
       </div>${isDealer?`<div class="dealer-hint" id="dealerHint"></div>`:''}`;
     });
@@ -1205,7 +1215,7 @@ function renderSpel(){
     <button class="seg-b ${tab==='stand'?'on':''}" data-act="spelTab" data-tab="stand">Stand</button>
   </div>`;
   if(tab==='stand'){
-    el.innerHTML=seg+tb+standList+kansMeterHTML(p);
+    el.innerHTML=seg+tb+standList+`<div style="height:20px"></div>`+kansMeterHTML(p);
   } else {
     el.innerHTML=seg+tb+form+ctrl;
     attachSpelInputs(p,order);
@@ -1228,6 +1238,8 @@ function renderReorder(p,order){
   el.innerHTML=html;
 }
 
+function bbOpener(order,dealerId){ if(!order||!order.length) return null;
+  const i=order.indexOf(dealerId); return i<0 ? order[0] : order[(i+1)%order.length]; }
 function defaultDealer(p){
   const order=inputOrder(p);
   if(!p.rondes.length) return order[0];
@@ -1286,6 +1298,16 @@ function attachSpelInputs(p,order){
       App.draft.entries[id][f]= inp.value==='' ? '' : Math.max(0,parseInt(inp.value)||0);
       recalcBB(p,order);
     }); });
+    // Enter/next springt naar het VOLGENDE veld in dezelfde kolom (voorspelling of gehaald)
+    ['voorspelling','gehaald'].forEach(col=>{
+      const list=[...el.querySelectorAll(`input[data-bb="${col}"]`)];
+      list.forEach((inp,i)=>{ inp.addEventListener('keydown',ev=>{
+        if(ev.key!=='Enter') return; ev.preventDefault();
+        const nxt=list[i+1];
+        if(nxt){ nxt.focus(); nxt.select&&nxt.select(); }
+        else inp.blur();
+      }); });
+    });
   } else {
     el.querySelectorAll('input[data-straf]').forEach(inp=>{ inp.addEventListener('input',()=>{
       App.draft.strafpunten[inp.dataset.straf]=parseInt(inp.value)||0; }); });
@@ -1669,17 +1691,21 @@ function dingWin(){ if(!audioCtx)return; try{ const t=audioCtx.currentTime; [[0,
   o.connect(g); g.connect(audioCtx.destination); o.start(t+d); o.stop(t+d+0.3); }); }catch(e){} }
 let wheelCtx=null;
 function wheelColors(i){ const c=['#C4623B','#4f8a4f','#5f6a8f','#C9A24B','#8a4f6b','#3f7a8a','#a5733f','#B23A34','#3f7a5f','#d87a99','#5c9a6f','#7a6a8a']; return c[i%c.length]; }
+function wheelWeights(players){ return players.map(p=> isTom(p.id)?0.4:1 ); }   // Tom: kleiner segment = lagere kans
+function wheelBounds(){ const players=App.wheel.players, w=wheelWeights(players), tot=w.reduce((a,b)=>a+b,0)||1;
+  const b=[0]; let acc=0; for(let i=0;i<w.length;i++){ acc+=w[i]; b.push(2*Math.PI*acc/tot); } return b; }  // n+1 grenzen, b[n]=2π
 function setupWheel(players){ const cv=document.getElementById('wheel'); if(!cv)return; wheelCtx=cv.getContext('2d');
   App.wheel={angle:App.wheel?App.wheel.angle:0, players, spinning:false}; drawWheel(); }
-function drawWheel(){ if(!wheelCtx)return; const ctx=wheelCtx, players=App.wheel.players, n=players.length, size=600, R=size/2, ang=App.wheel.angle, seg=2*Math.PI/n;
+function drawWheel(){ if(!wheelCtx)return; const ctx=wheelCtx, players=App.wheel.players, n=players.length, size=600, R=size/2, ang=App.wheel.angle, b=wheelBounds();
   ctx.clearRect(0,0,size,size);
-  for(let i=0;i<n;i++){ const a0=ang+i*seg, a1=a0+seg;
+  for(let i=0;i<n;i++){ const a0=ang+b[i], a1=ang+b[i+1], mid=(b[i]+b[i+1])/2;
     ctx.beginPath(); ctx.moveTo(R,R); ctx.arc(R,R,R-6,a0,a1); ctx.closePath();
     ctx.fillStyle=wheelColors(i); ctx.fill(); ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=2; ctx.stroke();
-    ctx.save(); ctx.translate(R,R); ctx.rotate(a0+seg/2); ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='bold 30px Inter, sans-serif';
+    ctx.save(); ctx.translate(R,R); ctx.rotate(ang+mid); ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='bold 30px Inter, sans-serif';
     const nm=players[i].naam; ctx.fillText(nm.length>10?nm.slice(0,9)+'…':nm, R-26, 11); ctx.restore(); }
   ctx.beginPath(); ctx.arc(R,R,R-5,0,2*Math.PI); ctx.strokeStyle='#241c07'; ctx.lineWidth=8; ctx.stroke(); }
-function wheelWinner(){ const n=App.wheel.players.length, seg=2*Math.PI/n; let rel=(-Math.PI/2-App.wheel.angle)%(2*Math.PI); if(rel<0)rel+=2*Math.PI; return Math.floor(rel/seg)%n; }
+function wheelWinner(){ const n=App.wheel.players.length, b=wheelBounds(); let rel=(-Math.PI/2-App.wheel.angle)%(2*Math.PI); if(rel<0)rel+=2*Math.PI;
+  for(let i=0;i<n;i++){ if(rel>=b[i] && rel<b[i+1]) return i; } return n-1; }
 function kickSound(){ if(!audioCtx)return; try{ const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
   o.type='sawtooth'; o.frequency.setValueAtTime(280,t); o.frequency.exponentialRampToValueAtTime(720,t+0.13);
   g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.17);
