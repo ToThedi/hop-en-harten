@@ -282,9 +282,34 @@ nav.tabbar button.on{color:var(--brass)}
 .per-row{font-size:12.5px;color:var(--ink);margin-top:10px;line-height:1.5}
 .per-row b{font-family:'Bricolage Grotesque',sans-serif}
 .bier-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.bier-chip{background:#fff;border:1px solid var(--parch-line);border-radius:20px;padding:9px 13px;font-size:13.5px;font-weight:600;color:var(--ink);display:inline-flex;align-items:center;gap:6px;min-height:40px}
+.bier-chip{background:#fff;border:1px solid var(--parch-line);border-radius:16px;padding:8px 12px;font-size:13.5px;font-weight:600;color:var(--ink);display:inline-flex;flex-direction:column;align-items:flex-start;gap:1px;min-height:44px;line-height:1.15}
+.bier-chip .bc-nm{display:inline-flex;align-items:center;gap:6px}
+.bier-chip .bc-sub{font-size:10.5px;font-weight:600;color:var(--ink-soft);font-family:'Space Mono',monospace}
 .bier-chip:active{background:var(--brass);border-color:var(--brass-deep)}
 .bier-chip b{background:var(--baize);color:var(--bone);border-radius:10px;padding:1px 6px;font-size:11px;font-family:'Space Mono',monospace}
+.bier-add2{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.bier-add2 .row2{display:flex;gap:8px}
+.bier-add2 .row2 input{flex:1;min-width:0}
+.bier-tot{display:flex;gap:8px;margin-top:10px}
+.bier-tot span{flex:1;display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,.04);border:1px solid var(--parch-line);border-radius:12px;padding:9px 4px}
+.bier-tot b{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;color:var(--ink)}
+.bier-tot small{font-size:10px;color:var(--ink-soft);margin-top:2px;text-align:center}
+.bier-badge-row{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+.bb-chip{font-size:14px;filter:saturate(.7)}
+.bb-chip.lit{filter:none}
+.cat-item.off{opacity:.42}
+.cat-item.off .ce{filter:grayscale(1)}
+.bier-manage{margin-top:10px}
+.bier-manage summary{font-size:12.5px;color:var(--ink-soft);font-weight:600;cursor:pointer;padding:4px 0;list-style:none}
+.bier-manage summary::-webkit-details-marker{display:none}
+.bier-manage summary::before{content:'▸ ';color:var(--brass-deep)}
+.bier-manage[open] summary::before{content:'▾ '}
+.bier-manage-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.bm-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(0,0,0,.04);border:1px solid var(--parch-line);border-radius:10px;padding:8px 10px}
+.bm-txt .nm{font-size:13.5px;font-weight:600;color:var(--ink)}
+.bm-txt .bm-sub{font-size:11px;color:var(--ink-soft);font-family:'Space Mono',monospace}
+.bm-edit{flex:0 0 auto;width:36px;height:36px;border-radius:9px;border:1px solid var(--parch-line);background:#fff;color:var(--ink);font-size:15px}
+.bm-edit:active{background:var(--brass)}
 .bier-add{display:flex;gap:8px;margin-top:12px;align-items:center}
 /* ragebait overlays */
 .rbov{position:fixed;inset:0;z-index:88;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(8,20,15,.82);backdrop-filter:blur(3px);text-align:center}
@@ -474,14 +499,9 @@ const GAMES = {
 const DOOD = 15;
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(16).slice(2));
 
-/* ---- boerenbridge rondeschema: 1 → piek → 1 ---- */
-function bbPlan(peak){
-  const up=[]; for(let i=1;i<=peak;i++) up.push(i);
-  const down=[]; for(let i=peak-1;i>=1;i--) down.push(i);
-  return up.concat(down);
-}
-function maxPeak(n){ return Math.max(1, Math.min(Math.floor(52/Math.max(2,n)), 13)); }
-function defPeak(n){ return Math.min(maxPeak(n), 7); }
+/* ---- boerenbridge rondeschema: 1 → max (52 kaarten ÷ spelers) ---- */
+function bbMaxCards(n){ return Math.max(1, Math.floor(52/Math.max(2,n))); }   // 52 kaarten ÷ spelers
+function bbPlan(n){ const k=bbMaxCards(n); const a=[]; for(let i=1;i<=k;i++) a.push(i); return a; }  // 1,2,…,max
 
 /* ---------- storage backends ---------- */
 const LocalBackend = {
@@ -599,7 +619,7 @@ function normalizePotje(p){
   const spelerIds=p.spelerIds||[];
   const volgorde=(p.volgorde&&p.volgorde.length)?p.volgorde:spelerIds.slice();
   let plan=p.plan||[];
-  if(p.spel==='boerenbridge' && !plan.length) plan=bbPlan(defPeak(spelerIds.length||2));
+  if(p.spel==='boerenbridge' && !plan.length) plan=bbPlan(spelerIds.length||2);
   return { ...p, spelerIds, volgorde, plan, rondes:p.rondes||[] };
 }
 /* gedeelde tekst is van andere telefoons afkomstig: strip alles wat HTML kan worden */
@@ -685,14 +705,46 @@ function personaChaos(id,ev){ const s=spelerObj(id); if(!s)return null; const p=
 function randomBoete(){ return BOETES[(Math.random()*BOETES.length)|0]; }
 function hashStr(s){ let h=0; s=String(s||''); for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
 function potjeTwist(p){ if(!p||!p.id) return null; const h=hashStr(p.id); if(h%10<6) return null; return TWISTS[h%TWISTS.length]; }
-const DEFAULT_BIER=['Tripel','IPA','Dubbel','Blond','Weizen','Stout','Quadrupel','Saison'];
+const DEFAULT_BIER=[
+  {naam:'Pils',pct:5,ml:250},{naam:'Tripel',pct:8,ml:330},{naam:'IPA',pct:6,ml:330},
+  {naam:'Dubbel',pct:7,ml:330},{naam:'Blond',pct:6.5,ml:330},{naam:'Weizen',pct:5.4,ml:500},
+  {naam:'Stout',pct:7,ml:330},{naam:'Quadrupel',pct:10,ml:330},{naam:'Saison',pct:6,ml:330}];
+function normBierType(x){
+  if(typeof x==='string'){ const n=cleanText(x,24); return n?{naam:n,pct:5,ml:330}:null; }   // migreer oude tekst-types
+  if(x&&typeof x==='object'){ const n=cleanText(x.naam,24); if(!n) return null;
+    let pct=Number(x.pct); if(!isFinite(pct)) pct=5; pct=Math.min(100,Math.max(0,pct));
+    let ml=Math.round(Number(x.ml)); if(!isFinite(ml)||ml<=0) ml=330; ml=Math.min(3000,Math.max(1,ml));
+    return {naam:n,pct:pct,ml:ml}; }
+  return null; }
 function bierTypes(){ const v=sget('bier_types')!==undefined?sget('bier_types'):gateGet('kv_bier_types');
-  try{ const a=JSON.parse(v||'null'); if(Array.isArray(a)&&a.length) return a.map(x=>cleanText(x,24)).filter(Boolean); }catch(e){}
-  return DEFAULT_BIER.slice(); }
-function addBierType(naam){ naam=cleanText(naam,24); if(!naam) return 'leeg';
-  const t=bierTypes(); if(t.some(x=>x.toLowerCase()===naam.toLowerCase())) return 'bestaat';
-  t.push(naam); sset('bier_types', JSON.stringify(t)); return 'ok'; }
-function removeBierType(naam){ const t=bierTypes().filter(x=>x!==naam); sset('bier_types', JSON.stringify(t)); }
+  try{ const a=JSON.parse(v||'null'); if(Array.isArray(a)&&a.length){ const out=a.map(normBierType).filter(Boolean); if(out.length) return out; } }catch(e){}
+  return DEFAULT_BIER.map(t=>({...t})); }
+function bierTypeDef(naam){ const t=bierTypes().find(x=>x.naam.toLowerCase()===String(naam).toLowerCase()); return t||{naam:String(naam||'Onbekend'),pct:5,ml:330}; }
+function addBierType(naam,pct,ml){ naam=cleanText(naam,24); if(!naam) return 'leeg';
+  const t=bierTypes(); if(t.some(x=>x.naam.toLowerCase()===naam.toLowerCase())) return 'bestaat';
+  t.push(normBierType({naam,pct,ml})); sset('bier_types', JSON.stringify(t)); return 'ok'; }
+function removeBierType(naam){ const t=bierTypes().filter(x=>x.naam.toLowerCase()!==String(naam).toLowerCase()); sset('bier_types', JSON.stringify(t)); }
+/* alcohol: standaardglas (NL) ≈ 10 g pure alcohol; dichtheid ethanol 0.789 */
+function drinkGrams(def){ return (def.ml*def.pct/100)*0.789; }
+function drinkUnits(def){ return drinkGrams(def)/10; }
+function bierUnits(id){ const o=bierLog(id); let u=0; for(const k in o) u+=(Number(o[k])||0)*drinkUnits(bierTypeDef(k)); return u; }
+function bierMlTotal(id){ const o=bierLog(id); let m=0; for(const k in o) m+=(Number(o[k])||0)*bierTypeDef(k).ml; return m; }
+function bierStats(id){ const o=bierLog(id); let count=0,units=0,ml=0,maxPct=0,distinct=0;
+  for(const k in o){ const c=Number(o[k])||0; if(c<=0) continue; distinct++; const d=bierTypeDef(k);
+    count+=c; units+=c*drinkUnits(d); ml+=c*d.ml; if(d.pct>maxPct)maxPct=d.pct; }
+  return {count,units,ml,maxPct,distinct}; }
+function bierKing(){ let best=null,bu=0; App.spelers.forEach(s=>{ const u=bierUnits(s.id); if(u>bu+1e-9){bu=u;best=s.id;} }); return bu>0?best:null; }
+const BIER_BADGES=[
+  {e:'🍺',naam:'Eerste Rondje',uitleg:'Log je eerste biertje',test:s=>s.count>=1},
+  {e:'🥇',naam:'Vaste Klant',uitleg:'15+ biertjes gelogd',test:s=>s.count>=15},
+  {e:'🎯',naam:'Proever',uitleg:'5+ verschillende biersoorten geproefd',test:s=>s.distinct>=5},
+  {e:'🧪',naam:'Zwaar Geschut',uitleg:'Drankje van 10% of sterker gelogd',test:s=>s.maxPct>=10},
+  {e:'🌊',naam:'De Spons',uitleg:'10+ standaardglazen alcohol in totaal',test:s=>s.units>=10},
+  {e:'🐋',naam:'Walvis',uitleg:'3+ liter totaal volume gedronken',test:s=>s.ml>=3000},
+  {e:'👑',naam:'Bierkoning',uitleg:'Meeste standaardglazen van de groep',test:(s,king)=>king},
+];
+function bierBadgesFor(id){ const s=bierStats(id); const king=bierKing()===id; return BIER_BADGES.filter(b=>b.test(s,king)); }
+function fmtGlazen(u){ return (Math.round(u*10)/10).toLocaleString('nl-NL'); }
 function bierLogRaw(id){ const v=sget('bierlog_'+id)!==undefined?sget('bierlog_'+id):gateGet('kv_bierlog_'+id);
   try{ const o=JSON.parse(v||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
 function bierLegacy(id){ const v=sget('bier_'+id)!==undefined?sget('bier_'+id):gateGet('kv_bier_'+id); return parseInt(v||'0')||0; }
@@ -706,7 +758,7 @@ function addBier(id,type){ if(!id) return; type=(type||'Onbekend').trim()||'Onbe
 function removeBier(id,type){ const o=bierLogRaw(id); if(o[type]){ o[type]--; if(o[type]<=0) delete o[type]; sset('bierlog_'+id, JSON.stringify(o)); return; }
   if(type==='Onbekend' && bierLegacy(id)>0) sset('bier_'+id, String(bierLegacy(id)-1)); }
 function go(v){ if(App.wheelRAF){cancelAnimationFrame(App.wheelRAF);App.wheelRAF=null;} if(App.wheel)App.wheel.spinning=false;
-  closeHandicap(); App.hcRoll=null; closePrev();      // geen vensters die blijven hangen
+  closeHandicap(); App.hcRoll=null; closePrev(); closeBierEdit();      // geen vensters die blijven hangen
   App.view=v; App.reorder=false; App.pickerFor=null; App.spelTab='invoer'; render(); window.scrollTo(0,0); }
 function render(){
   const viewChanged = App._lastView !== App.view;
@@ -1106,17 +1158,15 @@ function renderNieuw(){
         ${avatarHTML(s.id,'sm')}<div class="nm">${s.naam}</div></div>`; }
     html+=`</div>`;
     if(App.draft.spel==='boerenbridge'){
-      const n=Math.max(2,sel.length); const mp=maxPeak(n);
-      if(App.draft.peak>mp) App.draft.peak=mp;
-      const plan=bbPlan(App.draft.peak);
-      html+=`<div class="card" style="margin-top:12px">
-        <span class="field-lbl">Hoogste aantal kaarten per speler (piek)</span>
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="stepper"><button data-act="peak" data-d="-1">–</button><span class="val" id="peakVal">${App.draft.peak}</span><button data-act="peak" data-d="1">+</button></div>
-          <div class="mono" style="font-size:12px;color:var(--ink-soft)">schema 1 → ${App.draft.peak} → 1 = <b>${plan.length} rondes</b></div>
-        </div>
-        <div class="hint">Elke ronde weet de app hoeveel kaarten er zijn, dus de biedregel (voorspellingen samen ≠ kaarten) klopt de hele wedstrijd.</div>
-      </div>`;
+      if(sel.length>=2){ const n=sel.length; const plan=bbPlan(n); const mc=bbMaxCards(n);
+        html+=`<div class="card" style="margin-top:12px">
+          <span class="field-lbl">Aantal rondes (automatisch)</span>
+          <div class="mono" style="font-size:13px;color:var(--ink);margin-top:6px">52 kaarten ÷ ${n} spelers → max <b style="font-size:16px">${mc}</b> kaarten → <b style="font-size:16px">${plan.length} rondes</b></div>
+          <div class="hint">De app rekent dit zelf uit: elke ronde één kaart meer (1 → ${mc}), tot het hoogste aantal dat met ${n} spelers uit één kaartspel van 52 past.</div>
+        </div>`;
+      } else {
+        html+=`<div class="hint" style="margin-top:10px">Kies minstens 2 spelers — de app rekent dan zelf het aantal rondes uit (52 kaarten ÷ spelers).</div>`;
+      }
     }
   }
   html+=`<div class="btn-row"><button class="btn ghost" data-act="cancelNew">Terug</button>
@@ -1413,6 +1463,14 @@ const ACHS=[
 function computeAchievements(){ const agg=playerAgg(), out={};
   for(const id in agg) out[id]=ACHS.filter(x=>x.test(agg[id])).map(x=>x.id);
   return {out,agg}; }
+const TITLE_INFO=[
+  {e:'👑',t:'Grootmeester',uitleg:'Hoogste rating van de groep'},
+  {e:'🎯',t:'Kanonnenvoer',uitleg:'Laagste rating (bij 3+ spelers)'},
+  {e:'🔮',t:'Het Orakel',uitleg:'Meeste exact voorspelde rondes (boerenbridge)'},
+  {e:'🃏',t:'Boerenbedrog',uitleg:'Meeste rondes gewonnen met een boer'},
+  {e:'💥',t:'Brokkenpiloot',uitleg:'Hoogste strafpunten in één ronde'},
+  {e:'🐌',t:'Rode Lantaarn',uitleg:'Het vaakst laatste geworden'},
+];
 function computeTitles(){
   const {R,games}=computeRatings(), {agg}=computeAchievements(), titles={};
   const add=(id,t)=>{ if(id){(titles[id]=titles[id]||[]).push(t);} };
@@ -1492,36 +1550,93 @@ function renderBier(){
   const types=bierTypes(); const me=App.me;
   let html=`<h2 class="view-title">🍺 Bierlogboek</h2>`;
   if(!me){ html+=`<div class="empty"><div class="big">🍺</div>Log eerst in als speler.</div>`; el.innerHTML=html; return; }
-  const mine=bierLog(me), mijnTotaal=bierCount(me);
-  html+=`<div class="muted">Tik een biertje aan om er één te loggen voor <b>${naamVan(me)}</b>.</div>
+  const mine=bierLog(me), mijnStats=bierStats(me);
+  html+=`<div class="muted">Tik een biertje aan om er één te loggen voor <b>${naamVan(me)}</b>. Een halve liter van 10% telt zwaarder dan een pilsje 🍺</div>
     <div class="card" style="margin-top:12px">
       <div class="eyebrow">Wat drink je?</div>
-      <div class="bier-chips">${types.map(t=>`<button class="bier-chip" data-act="bierLog" data-type="${t.replace(/"/g,'&quot;')}">${t}${mine[t]?`<b>${mine[t]}</b>`:''}</button>`).join('')}</div>
-      <div class="bier-add"><input id="bierNew" class="id-input" style="margin-top:0" placeholder="Nieuw biertje toevoegen…" maxlength="24" autocomplete="off" enterkeyhint="done">
-        <button class="btn brass" style="width:auto;padding:0 16px;margin-top:0" data-act="bierAddType">➕</button></div>
-      <div class="hint">Iedereen mag types toevoegen — ze verschijnen bij alle spelers.</div>
+      <div class="bier-chips">${types.map(t=>{ const nm=t.naam.replace(/"/g,'&quot;'); return `<button class="bier-chip" data-act="bierLog" data-type="${nm}"><span class="bc-nm">${t.naam}${mine[t.naam]?`<b>${mine[t.naam]}</b>`:''}</span><span class="bc-sub">${(''+t.pct).replace('.',',')}% · ${t.ml}ml</span></button>`; }).join('')}</div>
+      <div class="bier-add2">
+        <input id="bierNew" class="id-input" style="margin-top:0" placeholder="Nieuw biertje (naam)…" maxlength="24" autocomplete="off">
+        <div class="row2">
+          <input id="bierPct" class="id-input" style="margin-top:0" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="% alc">
+          <input id="bierMl" class="id-input" style="margin-top:0" type="number" inputmode="numeric" min="1" max="3000" placeholder="ml">
+          <button class="btn brass" style="width:auto;padding:0 18px;margin-top:0" data-act="bierAddType">➕</button>
+        </div>
+      </div>
+      <div class="hint">Iedereen mag types toevoegen — ze verschijnen bij alle spelers. Standaard 5% / 330ml als je het leeg laat.</div>
+      <details class="bier-manage"><summary>Biersoorten bewerken (${types.length})</summary>
+        <div class="bier-manage-list">${types.map(t=>{ const nm=t.naam.replace(/"/g,'&quot;'); return `<div class="bm-row"><div class="bm-txt"><div class="nm">${t.naam}</div><div class="bm-sub">${(''+t.pct).replace('.',',')}% · ${t.ml}ml</div></div><button class="bm-edit" data-act="bierEdit" data-type="${nm}" aria-label="bewerk">✎</button></div>`; }).join('')}</div>
+      </details>
     </div>`;
+  // eigen logboek
   const mijnLijst=Object.keys(mine).sort((a,b)=>mine[b]-mine[a]);
-  html+=`<div class="card" style="margin-top:12px"><div class="eyebrow">Jouw logboek · ${mijnTotaal} totaal</div>`;
-  html+= mijnLijst.length? `<div class="p-list" style="margin-top:10px">${mijnLijst.map(t=>`<div class="p-item"><div class="av">🍺</div><div class="txt"><div class="nm">${t}</div><div class="fotolink">${mine[t]}× gedronken</div></div><button class="x" data-act="bierMinus" data-type="${t.replace(/"/g,'&quot;')}" aria-label="min 1">−</button></div>`).join('')}</div>`
+  html+=`<div class="card" style="margin-top:12px"><div class="eyebrow">Jouw logboek</div>
+    <div class="bier-tot"><span><b>${fmtGlazen(mijnStats.units)}</b><small>standaardglazen</small></span><span><b>${mijnStats.count}</b><small>drankjes</small></span><span><b>${(mijnStats.ml/1000).toLocaleString('nl-NL',{maximumFractionDigits:1})}</b><small>liter</small></span></div>`;
+  html+= mijnLijst.length? `<div class="p-list" style="margin-top:10px">${mijnLijst.map(t=>{ const d=bierTypeDef(t); const u=mine[t]*drinkUnits(d); return `<div class="p-item"><div class="av">🍺</div><div class="txt"><div class="nm">${t}</div><div class="fotolink">${mine[t]}× · ${fmtGlazen(u)} glazen</div></div><button class="x" data-act="bierMinus" data-type="${t.replace(/"/g,'&quot;')}" aria-label="min 1">−</button></div>`; }).join('')}</div>`
     : `<div class="hint" style="margin-top:6px">Nog niks gelogd. Proost erop los.</div>`;
   html+=`</div>`;
-  const rows=App.spelers.map(s=>({id:s.id,n:bierCount(s.id),top:bierTop(s.id)})).filter(r=>r.n>0).sort((a,b)=>b.n-a.n);
-  html+=`<div class="divider"></div><div class="eyebrow">Ranglijst</div>`;
-  html+= rows.length? `<div class="p-list" style="margin-top:10px">${rows.map((r,i)=>`<div class="lb-item ${i===0?'top':''}"><div class="medal">${i===0?'🍺':'#'+(i+1)}</div>
-      <div class="lb-cell">${avatarHTML(r.id)}<div><div class="nm">${naamVan(r.id)}</div><div class="split">${r.top?`favoriet: ${r.top.type}`:'—'}</div></div></div>
-      <div class="wins">${r.n}<small>bier</small></div></div>`).join('')}</div>`
+  // scoreboard op standaardglazen
+  const rows=App.spelers.map(s=>({id:s.id,st:bierStats(s.id),top:bierTop(s.id),badges:bierBadgesFor(s.id)})).filter(r=>r.st.count>0).sort((a,b)=>b.st.units-a.st.units);
+  html+=`<div class="divider"></div><div class="eyebrow">🏆 Scorebord · op standaardglazen</div>`;
+  html+= rows.length? `<div class="p-list" style="margin-top:10px">${rows.map((r,i)=>`<div class="lb-item ${i===0?'top':''}"><div class="medal">${i===0?'👑':'#'+(i+1)}</div>
+      <div class="lb-cell">${avatarHTML(r.id)}<div><div class="nm">${naamVan(r.id)}</div>
+        <div class="split">${r.st.count} drankjes · ${(r.st.ml/1000).toLocaleString('nl-NL',{maximumFractionDigits:1})}L${r.top?` · ${r.top.type}`:''}</div>
+        ${r.badges.length?`<div class="bier-badge-row">${r.badges.map(b=>`<span class="bb-chip" title="${b.uitleg}">${b.e}</span>`).join('')}</div>`:''}</div></div>
+      <div class="wins">${fmtGlazen(r.st.units)}<small>glazen</small></div></div>`).join('')}</div>`
     : `<div class="empty"><div class="big">🍺</div>Nog niemand heeft iets gelogd.</div>`;
+  // bier-badges legenda
+  html+=`<div class="divider"></div><div class="eyebrow">🏅 Bier-badges</div>
+    <div class="muted" style="margin-top:2px">Jouw badges${mijnStats.count?'':' — nog niks, ga los'}: ${bierBadgesFor(me).map(b=>`<span class="bb-chip lit" title="${b.uitleg}">${b.e}</span>`).join('')||'—'}</div>
+    <div class="cat-list" style="margin-top:10px">${BIER_BADGES.map(b=>{ const has=bierBadgesFor(me).some(x=>x.naam===b.naam); return `<div class="cat-item ${has?'':'off'}"><span class="ce">${b.e}</span><div><div class="nm">${b.naam}</div><div class="cd">${b.uitleg}</div></div></div>`; }).join('')}</div>`;
   html+=`<div class="btn-row"><button class="btn ghost" data-nav="home">Terug</button></div>`;
   el.innerHTML=html;
-  const i=document.getElementById('bierNew'); i&&i.addEventListener('keydown',e=>{ if(e.key==='Enter') doAddBierType(); });
+  const i=document.getElementById('bierNew'); i&&i.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('bierPct').focus(); } });
+  const ml=document.getElementById('bierMl'); ml&&ml.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); doAddBierType(); } });
 }
 function doAddBierType(){
   const i=document.getElementById('bierNew'); if(!i) return;
-  const r=addBierType(i.value);
-  if(r==='leeg') return;
+  const pct=document.getElementById('bierPct'), ml=document.getElementById('bierMl');
+  const r=addBierType(i.value, pct?pct.value:'', ml?ml.value:'');
+  if(r==='leeg'){ toast('Vul een naam in'); return; }
   if(r==='bestaat'){ toast('Dat biertje staat er al'); return; }
-  toast(i.value.trim()+' toegevoegd 🍻'); i.value=''; render();
+  toast(cleanText(i.value,24)+' toegevoegd 🍻'); i.value=''; if(pct)pct.value=''; if(ml)ml.value=''; render();
+}
+function updateBierType(oldName, naam, pct, ml){
+  naam=cleanText(naam,24); if(!naam) return 'leeg';
+  const t=bierTypes(); const idx=t.findIndex(x=>x.naam.toLowerCase()===String(oldName).toLowerCase());
+  if(idx<0) return 'weg';
+  if(t.some((x,i)=>i!==idx && x.naam.toLowerCase()===naam.toLowerCase())) return 'bestaat';
+  const prev=t[idx].naam; const def=normBierType({naam,pct,ml}); t[idx]=def; sset('bier_types', JSON.stringify(t));
+  if(prev!==def.naam){ (App.allSpelers||App.spelers).forEach(s=>{ const o=bierLogRaw(s.id);
+    if(o[prev]!==undefined){ o[def.naam]=(Number(o[def.naam])||0)+(Number(o[prev])||0); delete o[prev]; sset('bierlog_'+s.id, JSON.stringify(o)); } }); }
+  return 'ok';
+}
+function showBierEdit(name){
+  const d=bierTypeDef(name); App.bierEdit=d.naam;
+  let ov=document.getElementById('beOv'); if(!ov){ ov=document.createElement('div'); ov.id='beOv'; ov.className='rbov'; document.body.appendChild(ov); }
+  ov.innerHTML=`<div class="rbc" style="text-align:left"><div class="eyebrow" style="color:var(--brass-deep)">🍺 Biertje bewerken</div>
+    <input id="beNaam" class="id-input" maxlength="24" value="${d.naam.replace(/"/g,'&quot;')}" placeholder="Naam…">
+    <div class="row2" style="display:flex;gap:8px;margin-top:8px">
+      <input id="bePct" class="id-input" style="margin-top:0;flex:1" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${d.pct}" placeholder="% alc">
+      <input id="beMl" class="id-input" style="margin-top:0;flex:1" type="number" inputmode="numeric" min="1" max="3000" value="${d.ml}" placeholder="ml">
+    </div>
+    <div class="btn-row"><button class="btn ghost dark" data-act="bierEditDelete">Verwijderen</button><button class="btn brass" data-act="bierEditSave">Opslaan</button></div>
+    <button class="btn ghost dark" style="margin-top:8px" data-act="bierEditClose">Annuleer</button></div>`;
+}
+function closeBierEdit(){ const ov=document.getElementById('beOv'); if(ov) ov.remove(); App.bierEdit=null; }
+function doBierEditSave(){
+  const old=App.bierEdit; if(!old) return;
+  const naam=document.getElementById('beNaam'), pct=document.getElementById('bePct'), ml=document.getElementById('beMl');
+  const r=updateBierType(old, naam.value, pct.value, ml.value);
+  if(r==='leeg'){ toast('Vul een naam in'); return; }
+  if(r==='bestaat'){ toast('Die naam bestaat al'); return; }
+  closeBierEdit(); render(); toast('Opgeslagen 🍻');
+}
+function doBierEditDelete(){
+  const old=App.bierEdit; if(!old) return;
+  confirmDialog(`"${old}" verwijderen als biersoort?`,'Verwijderen','Annuleren').then(ok=>{
+    if(!ok) return; removeBierType(old); closeBierEdit(); render(); toast('Verwijderd');
+  });
 }
 function hcPool(){ const p=App.activePotje; const ids=(p&&p.spelerIds&&p.spelerIds.length)?p.spelerIds.slice():App.spelers.map(s=>s.id); return hcEligibleFrom(ids); }
 function rollHandicap(keepId){ const pool=hcPool(); if(!pool.length) return null;
@@ -1839,6 +1954,7 @@ function ratingTab(){
         <div class="title-wrap">${t||'<span class="muted2">nog geen titel</span>'}</div></div></div>
       <div class="wins">${Math.round(R[id])}<small>rating · ${games[id]}p</small></div></div>`; });
   html+=`</div><div class="hint">Rating start op 1000 en beweegt met je eindklassering per potje (Elo, verdeeld over al je tegenstanders). Titels gaan naar de koploper per categorie.</div>`;
+  html+=`<div class="divider"></div><div class="eyebrow">🏷️ Wanneer verdien je een titel?</div><div class="cat-list" style="margin-top:10px">${TITLE_INFO.map(t=>`<div class="cat-item"><span class="ce">${t.e}</span><div><div class="nm">${t.t}</div><div class="cd">${t.uitleg}</div></div></div>`).join('')}</div>`;
   return html;
 }
 function prestatiesTab(){
@@ -1891,7 +2007,7 @@ function renderUitleg(){
   </div>
   <div class="card rules">
     <div class="eyebrow">♠ Boerenbridge</div>
-    <p>Voorspel-spel. Elke ronde een wisselend aantal kaarten (schema 1 → piek → 1). Hoogste bieder bepaalt de troef; kleur bekennen verplicht.</p>
+    <p>Voorspel-spel. Het aantal rondes rekent de app zelf uit: 52 kaarten ÷ spelers = het maximum, en elke ronde gaat er één kaart bij (1 → max). De speler ná de deler opent en bepaalt de troef; kleur bekennen verplicht.</p>
     <h3>Doel</h3><p>Voorspel exact hoeveel slagen je haalt. Juist → punten, ernaast → minpunten.</p>
     <h3>Biedregel (deler)</h3><p>De voorspellingen samen mogen <b>niet gelijk</b> zijn aan het aantal kaarten. De laatste bieder (deler) is dus beperkt — de app laat zien welk getal niet mag en blokkeert opslaan als het totaal tóch klopt.</p>
     <h3>Jullie puntentelling (10 + 2)</h3><ul>
@@ -1941,7 +2057,6 @@ document.addEventListener('click', async (e)=>{
     case 'setAvatar': await Store.setAvatar(id, a.dataset.key||null); App.pickerFor=null; await refresh(); render(); return;
     case 'selAll': return selAll();
     case 'togP': return toggleSel(id);
-    case 'peak': return changePeak(parseInt(a.dataset.d));
     case 'cancelNew': App.draft=null; return go('home');
     case 'startPotje': return startPotje();
     case 'resume': return go('spel');
@@ -1973,6 +2088,10 @@ document.addEventListener('click', async (e)=>{
     case 'bierLog': if(App.me){ addBier(App.me, a.dataset.type); toast('Proost! 🍻 '+a.dataset.type+' ('+bierCount(App.me)+')'); render(); } return;
     case 'bierMinus': if(App.me){ removeBier(App.me, a.dataset.type); render(); } return;
     case 'bierAddType': return doAddBierType();
+    case 'bierEdit': return showBierEdit(a.dataset.type);
+    case 'bierEditSave': return doBierEditSave();
+    case 'bierEditDelete': return doBierEditDelete();
+    case 'bierEditClose': return closeBierEdit();
     case 'radPrompt': App.radPrompt=a.dataset.p; { const res=document.getElementById('wheelRes'); if(res&&!(App.wheel&&App.wheel.spinning))res.textContent=App.radPrompt; }
       document.querySelectorAll('.prompt-seg button').forEach(b=>b.classList.toggle('on',b.dataset.p===App.radPrompt)); return;
     case 'spin': return spinWheel();
@@ -1998,21 +2117,17 @@ async function delSpeler(id){
   if(!(await confirmDialog(`${naamVan(id)} verwijderen uit de spelerslijst?\n(Gewonnen potjes blijven in het leaderboard.)`, 'Verwijderen'))) return;
   await Store.archiveSpeler(id); await refresh(); render();
 }
-function startNieuw(spel){ App.draft={spel, spelerIds:[], peak:defPeak(2)}; go('nieuw'); }
+function startNieuw(spel){ App.draft={spel, spelerIds:[]}; go('nieuw'); }
 function selAll(){ const all=App.spelers.map(s=>s.id);
   App.draft.spelerIds = (App.draft.spelerIds.length===all.length) ? [] : all;
-  if(App.draft.spel==='boerenbridge') App.draft.peak=Math.min(App.draft.peak, maxPeak(Math.max(2,App.draft.spelerIds.length)));
   render(); }
 function toggleSel(id){ const s=App.draft.spelerIds; const i=s.indexOf(id);
   if(i>=0)s.splice(i,1); else s.push(id);
-  if(App.draft.spel==='boerenbridge') App.draft.peak=Math.min(App.draft.peak, maxPeak(Math.max(2,s.length)));
   render(); }
-function changePeak(d){ const n=Math.max(2,App.draft.spelerIds.length);
-  App.draft.peak=Math.max(1, Math.min(maxPeak(n), App.draft.peak+d)); render(); }
 async function startPotje(){
   const d=App.draft;
   const p={ id:uid(), spel:d.spel, status:'bezig', spelerIds:[...d.spelerIds], volgorde:[...d.spelerIds],
-    plan: d.spel==='boerenbridge'?bbPlan(Math.min(d.peak,maxPeak(d.spelerIds.length))):[],
+    plan: d.spel==='boerenbridge'?bbPlan(d.spelerIds.length):[],
     rondes:[], winnaarId:null, gestart:new Date().toISOString(), afgerond:null };
   await Store.savePotje(p); App.draft=null; await refresh(); armCurseForPotje(p);
   const hc=maybeAutoHandicap(p);
