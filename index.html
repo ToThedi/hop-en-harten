@@ -499,9 +499,9 @@ const GAMES = {
 const DOOD = 15;
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(16).slice(2));
 
-/* ---- boerenbridge rondeschema: 1 → max (52 kaarten ÷ spelers) ---- */
+/* ---- boerenbridge rondeschema: 1 → max → 1 (max = 52 kaarten ÷ spelers) ---- */
 function bbMaxCards(n){ return Math.max(1, Math.floor(52/Math.max(2,n))); }   // 52 kaarten ÷ spelers
-function bbPlan(n){ const k=bbMaxCards(n); const a=[]; for(let i=1;i<=k;i++) a.push(i); return a; }  // 1,2,…,max
+function bbPlan(n){ const k=bbMaxCards(n); const a=[]; for(let i=1;i<=k;i++) a.push(i); for(let i=k-1;i>=1;i--) a.push(i); return a; }  // 1→max→1
 
 /* ---------- storage backends ---------- */
 const LocalBackend = {
@@ -1161,8 +1161,8 @@ function renderNieuw(){
       if(sel.length>=2){ const n=sel.length; const plan=bbPlan(n); const mc=bbMaxCards(n);
         html+=`<div class="card" style="margin-top:12px">
           <span class="field-lbl">Aantal rondes (automatisch)</span>
-          <div class="mono" style="font-size:13px;color:var(--ink);margin-top:6px">52 kaarten ÷ ${n} spelers → max <b style="font-size:16px">${mc}</b> kaarten → <b style="font-size:16px">${plan.length} rondes</b></div>
-          <div class="hint">De app rekent dit zelf uit: elke ronde één kaart meer (1 → ${mc}), tot het hoogste aantal dat met ${n} spelers uit één kaartspel van 52 past.</div>
+          <div class="mono" style="font-size:13px;color:var(--ink);margin-top:6px">52 kaarten ÷ ${n} spelers → max <b style="font-size:16px">${mc}</b> kaarten → <b style="font-size:16px">${plan.length} rondes</b> (1 → ${mc} → 1)</div>
+          <div class="hint">De app rekent dit zelf uit: elke ronde één kaart erbij tot ${mc} (het hoogste dat met ${n} spelers uit 52 past), daarna weer terug naar 1.</div>
         </div>`;
       } else {
         html+=`<div class="hint" style="margin-top:10px">Kies minstens 2 spelers — de app rekent dan zelf het aantal rondes uit (52 kaarten ÷ spelers).</div>`;
@@ -2007,7 +2007,7 @@ function renderUitleg(){
   </div>
   <div class="card rules">
     <div class="eyebrow">♠ Boerenbridge</div>
-    <p>Voorspel-spel. Het aantal rondes rekent de app zelf uit: 52 kaarten ÷ spelers = het maximum, en elke ronde gaat er één kaart bij (1 → max). De speler ná de deler opent en bepaalt de troef; kleur bekennen verplicht.</p>
+    <p>Voorspel-spel. Het aantal rondes rekent de app zelf uit: 52 kaarten ÷ spelers = het maximum, en het schema loopt op en weer af (1 → max → 1). De speler ná de deler opent en bepaalt de troef; kleur bekennen verplicht.</p>
     <h3>Doel</h3><p>Voorspel exact hoeveel slagen je haalt. Juist → punten, ernaast → minpunten.</p>
     <h3>Biedregel (deler)</h3><p>De voorspellingen samen mogen <b>niet gelijk</b> zijn aan het aantal kaarten. De laatste bieder (deler) is dus beperkt — de app laat zien welk getal niet mag en blokkeert opslaan als het totaal tóch klopt.</p>
     <h3>Jullie puntentelling (10 + 2)</h3><ul>
